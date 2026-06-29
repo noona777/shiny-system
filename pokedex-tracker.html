@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pokédex">
+<meta name="theme-color" content="#ffffff">
+<title>Pokédex Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.33.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f8f6;--surface:#ffffff;--surface1:#f2f2f0;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:#e0e0dd;--border2:#c8c8c4;
+  --accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;
+  --success:#059669;--danger:#dc2626;--danger-bg:#fef2f2;
+  --wish:#534AB7;--wish-bg:#EEEDFE;--wish-border:#AFA9EC;
+  --gold:#C9A84C;
+  --radius:8px;--radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a1a;--surface:#242424;--surface1:#2e2e2e;
+    --text:#f0f0ee;--text2:#aaa;--text3:#666;
+    --border:#333;--border2:#444;
+    --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-border:#1d4ed8;
+    --success:#10b981;--danger:#ef4444;--danger-bg:#450a0a;
+    --wish:#7F77DD;--wish-bg:#26215C;--wish-border:#534AB7;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+/* Layout */
+.app{max-width:900px;margin:0 auto;padding:1rem}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;white-space:nowrap}
+.pokeball{width:22px;height:22px;border-radius:50%;background:linear-gradient(to bottom,#e74c3c 50%,#fff 50%);border:2.5px solid #333;position:relative;flex-shrink:0}
+.pokeball::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:#fff;border:2px solid #333}
+
+/* Search */
+.search-row{display:flex;gap:8px;flex:1;min-width:180px}
+.search-row input,.search-row select{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none}
+.search-row input{flex:1}
+.search-row input:focus,.search-row select:focus{border-color:var(--accent)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--surface1)}
+.btn.primary{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.btn.primary:hover{opacity:.9}
+.btn.danger-soft{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+.btn i{font-size:15px}
+
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem 1rem}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.stat .val{font-size:19px;font-weight:600;color:var(--text)}
+.stat .val.accent{color:var(--accent)}
+.stat .val.wish{color:var(--wish)}
+.stat .val.gain{color:var(--success)}
+.stat .val.loss{color:var(--danger)}
+
+/* Filter bar */
+.filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit}
+.pill:hover{background:var(--surface1)}
+.pill.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.pill.wish-pill.active{background:var(--wish-bg);border-color:var(--wish-border);color:var(--wish)}
+.spacer{flex:1}
+.toggle-btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 12px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit}
+.toggle-btn:hover{background:var(--surface1)}
+
+/* Card grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+
+/* Card */
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1.5px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.card:hover{border-color:var(--border2)}
+.card.wishlist{border:2px solid var(--wish)}
+
+.card-img-wrap{position:relative;height:130px;background:var(--surface1);display:flex;align-items:center;justify-content:center}
+.card-img-wrap img{width:100%;height:100%;object-fit:contain;padding:8px}
+.no-img-icon{font-size:36px;color:var(--text3)}
+.wish-badge{position:absolute;top:7px;right:7px;background:var(--wish-bg);color:var(--wish);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--wish-border);display:flex;align-items:center;gap:3px}
+.rarity-tag{position:absolute;bottom:6px;left:7px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.r-SAR{background:#FAEEDA;color:#633806;border:1px solid #EF9F27}
+.r-SIR{background:#EEEDFE;color:#26215C;border:1px solid #7F77DD}
+.r-AR{background:#E1F5EE;color:#085041;border:1px solid #1D9E75}
+.r-Other{background:var(--surface1);color:var(--text2);border:1px solid var(--border)}
+
+.card-body{padding:.75rem;flex:1}
+.dex-num{font-size:11px;color:var(--text3);margin-bottom:2px}
+.card-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:1px}
+.card-alt{font-size:11px;color:var(--text2);margin-bottom:4px}
+.card-set{font-size:11px;color:var(--text3);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+
+.info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.info-key{font-size:11px;color:var(--text3)}
+.info-val{font-size:12px;font-weight:500;color:var(--text)}
+.info-val.blurred{filter:blur(5px);user-select:none;pointer-events:none}
+.info-val.pulled{color:var(--success)}
+.info-val.bought{color:var(--accent)}
+.info-val.market{color:var(--success)}
+
+.sparkline-wrap{margin-top:6px}
+.spark-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px}
+.sparkline{width:100%;height:34px}
+
+.card-notes{font-size:11px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-style:italic}
+.wish-notes{font-size:12px;color:var(--text2);margin-top:4px;font-style:italic}
+
+.card-footer{padding:.5rem .75rem;border-top:1px solid var(--border);display:flex;gap:6px}
+.card-footer button{flex:1;font-size:11px;padding:5px 0;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px}
+.card-footer button:hover{background:var(--surface1)}
+.card-footer button.f-log{border-color:var(--accent-border);color:var(--accent)}
+.card-footer button.f-log:hover{background:var(--accent-bg)}
+.card-footer button.f-own{border-color:var(--wish-border);color:var(--wish);background:var(--wish-bg)}
+.card-footer button.f-del{border-color:var(--danger);color:var(--danger)}
+.card-footer button.f-del:hover{background:var(--danger-bg)}
+.card-footer button.f-edit{border-color:var(--border2)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;width:100%;max-width:360px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:.25rem;color:var(--text)}
+.modal .sub{font-size:13px;color:var(--text2);margin-bottom:1rem}
+.form-grid{display:grid;gap:8px}
+.form-grid input,.form-grid select,.form-grid textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface1);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.form-grid input:focus,.form-grid select:focus{border-color:var(--accent)}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.form-group{display:grid;gap:3px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.modal-footer button{padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface1);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+.modal-footer .confirm{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:500}
+.modal-footer .confirm:hover{opacity:.9}
+
+/* Empty state */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty i{font-size:40px;display:block;margin-bottom:10px}
+.empty p{font-size:14px}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;padding:8px 18px;border-radius:20px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+/* Responsive */
+@media(max-width:480px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .topbar{gap:8px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="logo">
+      <div class="pokeball"></div>
+      Pokédex Tracker
+    </div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Name, # or set..." oninput="render()">
+      <select id="rarityFilter" onchange="render()">
+        <option value="">All rarities</option>
+        <option value="SAR">SAR</option>
+        <option value="SIR">SIR</option>
+        <option value="AR">AR</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <button class="btn primary" onclick="openAdd()"><i class="ti ti-plus"></i> Add card</button>
+    <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i> Export</button>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <button class="pill active" data-f="all" onclick="setFilter(this,'all')">All</button>
+    <button class="pill" data-f="owned" onclick="setFilter(this,'owned')">Owned</button>
+    <button class="pill wish-pill" data-f="wishlist" onclick="setFilter(this,'wishlist')">Wishlist</button>
+    <div class="spacer"></div>
+    <button class="toggle-btn" onclick="togglePrices()" id="priceToggle">
+      <i class="ti ti-eye" id="priceIcon"></i>
+      <span id="priceLabel">Hide cost</span>
+    </button>
+  </div>
+
+  <!-- Card grid -->
+  <div class="grid" id="cardGrid"></div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Log price modal -->
+<div class="overlay" id="logOverlay" style="display:none">
+  <div class="modal">
+    <h3>Log today's market value</h3>
+    <p class="sub" id="logSub"></p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Market value (SGD)</div>
+        <input type="number" id="logVal" placeholder="e.g. 45.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('logOverlay')">Cancel</button>
+      <button class="confirm" onclick="confirmLog()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add / Edit card modal -->
+<div class="overlay" id="addOverlay" style="display:none">
+  <div class="modal">
+    <h3 id="addTitle">Add card</h3>
+    <p class="sub">Fill in what you know — only English name is required.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Pokédex number</div>
+        <input type="text" id="f_dex" placeholder="e.g. 006">
+      </div>
+      <div class="form-group">
+        <div class="form-label">English name *</div>
+        <input type="text" id="f_en" placeholder="e.g. Charizard">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Japanese name</div>
+        <input type="text" id="f_jp" placeholder="e.g. リザードン">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Chinese name</div>
+        <input type="text" id="f_sc" placeholder="e.g. 喷火龙">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Rarity</div>
+        <select id="f_rarity">
+          <option value="">Select rarity</option>
+          <option value="SAR">SAR</option>
+          <option value="SIR">SIR</option>
+          <option value="AR">AR</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Set name</div>
+        <input type="text" id="f_set" placeholder="e.g. Ruler of the Black Flame">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Card image URL</div>
+        <input type="url" id="f_img" placeholder="Paste image link (optional)">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Status</div>
+        <select id="f_status" onchange="togglePurchaseSection()">
+          <option value="owned">Owned</option>
+          <option value="wishlist">Wishlist</option>
+        </select>
+      </div>
+      <div id="purchaseSection">
+        <div class="form-grid">
+          <div class="form-group">
+            <div class="form-label">My cost (SGD)</div>
+            <input type="number" id="f_cost" placeholder="e.g. 120.00" step="0.01" min="0">
+          </div>
+          <div class="form-group">
+            <div class="form-label">Source</div>
+            <select id="f_source">
+              <option value="single">Purchased single</option>
+              <option value="box">Pulled from box</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-label">Date acquired</div>
+            <input type="date" id="f_date">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Notes</div>
+        <input type="text" id="f_notes" placeholder="e.g. PSA-ready condition">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('addOverlay')">Cancel</button>
+      <button class="confirm" onclick="saveCard()">Save card</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'pdex_v1';
+let cards = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || [];
+let pricesHidden = false;
+let currentFilter = 'all';
+let logTargetId = null;
+let editId = null;
+const today = () => new Date().toISOString().slice(0,10);
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// ── Filter / price toggle ──────────────────────────────────────────────
+function setFilter(el, f) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = f;
+  render();
+}
+
+function togglePrices() {
+  pricesHidden = !pricesHidden;
+  document.getElementById('priceIcon').className = pricesHidden ? 'ti ti-eye-off' : 'ti ti-eye';
+  document.getElementById('priceLabel').textContent = pricesHidden ? 'Show cost' : 'Hide cost';
+  render();
+}
+
+// ── Sparkline ──────────────────────────────────────────────────────────
+function sparklineSVG(history) {
+  if (!history || history.length < 2) {
+    return '<div style="height:34px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3)">No price history yet — tap Log price</div>';
+  }
+  const vals = history.map(h => h.v);
+  const min = Math.min(...vals), max = Math.max(...vals), range = max - min || 1;
+  const W = 200, H = 32, pad = 4;
+  const pts = vals.map((v, i) => {
+    const x = pad + (i / (vals.length - 1)) * (W - 2 * pad);
+    const y = H - pad - ((v - min) / range) * (H - 2 * pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const last = vals[vals.length - 1], first = vals[0];
+  const col = last >= first ? '#059669' : '#dc2626';
+  const lastPt = pts.split(' ').pop().split(',');
+  const startDate = history[0].d.slice(5);
+  const endDate = history[history.length-1].d.slice(5);
+  return `
+    <div class="sparkline-wrap">
+      <div class="spark-labels"><span>${startDate}</span><span>S$${last.toFixed(0)}</span><span>${endDate}</span></div>
+      <svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="${col}"/>
+      </svg>
+    </div>`;
+}
+
+// ── Stats bar ──────────────────────────────────────────────────────────
+function renderStats() {
+  const owned = cards.filter(c => c.status === 'owned');
+  const wishlist = cards.filter(c => c.status === 'wishlist');
+  const totalCost = owned.reduce((s, c) => s + (c.cost || 0), 0);
+  const latestVal = owned.reduce((s, c) => {
+    if (!c.history || !c.history.length) return s + (c.cost || 0);
+    return s + c.history[c.history.length - 1].v;
+  }, 0);
+  const gain = latestVal - totalCost;
+  const gainClass = gain >= 0 ? 'gain' : 'loss';
+  const gainStr = (gain >= 0 ? '+' : '') + 'S$' + Math.abs(Math.round(gain)).toLocaleString();
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="lbl">Owned</div><div class="val">${owned.length}</div></div>
+    <div class="stat"><div class="lbl">Wishlist</div><div class="val wish">${wishlist.length}/3</div></div>
+    <div class="stat"><div class="lbl">Total cost</div><div class="val">${pricesHidden ? '—' : 'S$' + Math.round(totalCost).toLocaleString()}</div></div>
+    <div class="stat"><div class="lbl">Est. value</div><div class="val accent">${pricesHidden ? '—' : 'S$' + Math.round(latestVal).toLocaleString()}</div></div>
+    <div class="stat"><div class="lbl">Gain / loss</div><div class="val ${gainClass}">${pricesHidden ? '—' : gainStr}</div></div>
+  `;
+}
+
+// ── Card grid ──────────────────────────────────────────────────────────
+function render() {
+  renderStats();
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const rar = document.getElementById('rarityFilter').value;
+
+  let filtered = cards.filter(c => {
+    if (currentFilter === 'owned' && c.status !== 'owned') return false;
+    if (currentFilter === 'wishlist' && c.status !== 'wishlist') return false;
+    if (rar && c.rarity !== rar) return false;
+    if (q) {
+      const haystack = [c.en, c.jp, c.sc, c.dex, c.set].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  // Sort: owned first, then by dex number
+  filtered.sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'owned' ? -1 : 1;
+    return (parseInt(a.dex) || 999) - (parseInt(b.dex) || 999);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('cardGrid').innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <i class="ti ti-search"></i>
+        <p>No cards found — try a different search or add your first card.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('cardGrid').innerHTML = filtered.map(c => {
+    const isWish = c.status === 'wishlist';
+    const lastVal = c.history && c.history.length ? c.history[c.history.length - 1].v : null;
+    const blurClass = pricesHidden ? 'blurred' : '';
+    const rarClass = c.rarity ? `r-${c.rarity}` : '';
+
+    return `
+    <div class="card ${isWish ? 'wishlist' : ''}">
+      <div class="card-img-wrap">
+        ${c.img
+          ? `<img src="${c.img}" alt="${c.en} card" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="no-img-icon" style="${c.img ? 'display:none' : 'display:flex'}"><i class="ti ti-photo-off"></i></div>
+        ${isWish ? `<div class="wish-badge"><i class="ti ti-star" style="font-size:9px"></i> Wishlist</div>` : ''}
+        ${c.rarity ? `<span class="rarity-tag ${rarClass}">${c.rarity}</span>` : ''}
+      </div>
+
+      <div class="card-body">
+        <div class="dex-num">#${c.dex || '???'}</div>
+        <div class="card-name">${c.en}</div>
+        <div class="card-alt">${[c.jp, c.sc].filter(Boolean).join(' · ') || '—'}</div>
+        <div class="card-set">${c.set || 'Unknown set'}</div>
+
+        ${isWish ? `
+          <div class="wish-notes">${c.notes || 'Add to collection when acquired'}</div>
+        ` : `
+          <div class="info-row">
+            <span class="info-key">My cost</span>
+            <span class="info-val ${blurClass} ${c.source === 'box' ? 'pulled' : 'bought'}">${c.cost != null ? 'S$' + c.cost.toFixed(2) : '—'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Source</span>
+            <span class="info-val" style="font-size:11px">${c.source === 'box' ? '📦 Pulled from box' : '🛒 Purchased single'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Acquired</span>
+            <span class="info-val" style="font-size:11px">${c.date || '—'}</span>
+          </div>
+          ${lastVal != null ? `
+          <div class="info-row" style="margin-top:4px">
+            <span class="info-key">Market value</span>
+            <span class="info-val market ${blurClass}">S$${lastVal.toFixed(0)}</span>
+          </div>` : ''}
+          ${sparklineSVG(c.history)}
+          ${c.notes ? `<div class="card-notes">${c.notes}</div>` : ''}
+        `}
+      </div>
+
+      <div class="card-footer">
+        ${isWish
+          ? `<button class="f-own" onclick="markOwned(${c.id})"><i class="ti ti-check"></i> I own this</button>`
+          : `<button class="f-log" onclick="openLog(${c.id})"><i class="ti ti-chart-line"></i> Log price</button>`
+        }
+        <button class="f-edit" onclick="openEdit(${c.id})"><i class="ti ti-edit"></i></button>
+        <button class="f-del" onclick="deleteCard(${c.id})"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Log price ──────────────────────────────────────────────────────────
+function openLog(id) {
+  logTargetId = id;
+  const c = cards.find(x => x.id === id);
+  document.getElementById('logSub').textContent = `#${c.dex} ${c.en} · ${c.rarity || ''} · ${c.set || ''}`;
+  document.getElementById('logVal').value = '';
+  document.getElementById('logOverlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('logVal').focus(), 100);
+}
+
+function confirmLog() {
+  const val = parseFloat(document.getElementById('logVal').value);
+  if (!val || val <= 0) { toast('Enter a valid price'); return; }
+  const c = cards.find(x => x.id === logTargetId);
+  if (!c.history) c.history = [];
+  const t = today();
+  const idx = c.history.findIndex(h => h.d === t);
+  if (idx >= 0) c.history[idx].v = val;
+  else c.history.push({ d: t, v: val });
+  save(); render();
+  closeOverlay('logOverlay');
+  toast('Price logged — S$' + val.toFixed(2));
+}
+
+// ── Mark owned ─────────────────────────────────────────────────────────
+function markOwned(id) {
+  const c = cards.find(x => x.id === id);
+  c.status = 'owned';
+  c.date = today();
+  save(); render();
+  toast(`${c.en} moved to collection!`);
+}
+
+// ── Delete card ────────────────────────────────────────────────────────
+function deleteCard(id) {
+  const c = cards.find(x => x.id === id);
+  if (!confirm(`Remove ${c.en} from your tracker?`)) return;
+  cards = cards.filter(x => x.id !== id);
+  save(); render();
+  toast('Card removed');
+}
+
+// ── Add / Edit modal ───────────────────────────────────────────────────
+function openAdd() {
+  editId = null;
+  document.getElementById('addTitle').textContent = 'Add card';
+  ['f_dex','f_en','f_jp','f_sc','f_set','f_img','f_notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_rarity').value = '';
+  document.getElementById('f_status').value = 'owned';
+  document.getElementById('f_cost').value = '';
+  document.getElementById('f_source').value = 'single';
+  document.getElementById('f_date').value = today();
+  togglePurchaseSection();
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function openEdit(id) {
+  editId = id;
+  const c = cards.find(x => x.id === id);
+  document.getElementById('addTitle').textContent = 'Edit card';
+  document.getElementById('f_dex').value = c.dex || '';
+  document.getElementById('f_en').value = c.en || '';
+  document.getElementById('f_jp').value = c.jp || '';
+  document.getElementById('f_sc').value = c.sc || '';
+  document.getElementById('f_rarity').value = c.rarity || '';
+  document.getElementById('f_set').value = c.set || '';
+  document.getElementById('f_img').value = c.img || '';
+  document.getElementById('f_status').value = c.status || 'owned';
+  document.getElementById('f_cost').value = c.cost != null ? c.cost : '';
+  document.getElementById('f_source').value = c.source || 'single';
+  document.getElementById('f_date').value = c.date || today();
+  document.getElementById('f_notes').value = c.notes || '';
+  togglePurchaseSection();
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function togglePurchaseSection() {
+  const isOwned = document.getElementById('f_status').value === 'owned';
+  document.getElementById('purchaseSection').style.display = isOwned ? 'block' : 'none';
+}
+
+function saveCard() {
+  const en = document.getElementById('f_en').value.trim();
+  if (!en) { toast('English name is required'); return; }
+  const status = document.getElementById('f_status').value;
+  const wishCount = cards.filter(c => c.status === 'wishlist' && c.id !== editId).length;
+  if (status === 'wishlist' && wishCount >= 3) {
+    toast('Max 3 wishlist cards — own or remove one first');
+    return;
+  }
+  const id = editId || (Math.max(0, ...cards.map(c => c.id)) + 1);
+  const existing = editId ? cards.find(c => c.id === editId) : null;
+  const card = {
+    id,
+    dex: document.getElementById('f_dex').value.trim() || '???',
+    en,
+    jp: document.getElementById('f_jp').value.trim(),
+    sc: document.getElementById('f_sc').value.trim(),
+    rarity: document.getElementById('f_rarity').value,
+    set: document.getElementById('f_set').value.trim(),
+    img: document.getElementById('f_img').value.trim(),
+    status,
+    cost: status === 'owned' ? (parseFloat(document.getElementById('f_cost').value) || null) : null,
+    source: status === 'owned' ? document.getElementById('f_source').value : null,
+    date: status === 'owned' ? document.getElementById('f_date').value : null,
+    notes: document.getElementById('f_notes').value.trim(),
+    history: existing ? (existing.history || []) : []
+  };
+  if (editId) cards = cards.map(c => c.id === editId ? card : c);
+  else cards.push(card);
+  save(); render();
+  closeOverlay('addOverlay');
+  toast(editId ? 'Card updated' : `${en} added!`);
+}
+
+// ── CSV Export ─────────────────────────────────────────────────────────
+function exportCSV() {
+  if (!cards.length) { toast('No cards to export'); return; }
+  const headers = ['Dex#','English','Japanese','Chinese','Rarity','Set','Status','My Cost (SGD)','Source','Date Acquired','Latest Market Value (SGD)','Notes'];
+  const rows = cards.map(c => {
+    const lastVal = c.history && c.history.length ? c.history[c.history.length - 1].v : '';
+    return [
+      c.dex, c.en, c.jp, c.sc, c.rarity, c.set, c.status,
+      c.cost != null ? c.cost.toFixed(2) : '',
+      c.source || '',
+      c.date || '',
+      lastVal !== '' ? lastVal.toFixed(2) : '',
+      c.notes
+    ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pokedex-collection-${today()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported!');
+}
+
+// ── Overlay helpers ────────────────────────────────────────────────────
+function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+
+// Close on backdrop click
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeOverlay(el.id); });
+});
+
+// ── Init ───────────────────────────────────────────────────────────────
+document.getElementById('f_date').value = today();
+render();
+</script>
+</body>
+</html>
