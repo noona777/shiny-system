@@ -595,7 +595,7 @@ function saveCard() {
 // ── CSV Export ─────────────────────────────────────────────────────────
 function exportCSV() {
   if (!cards.length) { toast('No cards to export'); return; }
-  const headers = ['Dex#','English','Japanese','Chinese','Rarity','Set','Status','My Cost (SGD)','Source','Date Acquired','Latest Market Value (SGD)','Notes'];
+  const headers = ['Dex#','English','Japanese','Chinese','Rarity','Set','Status','My Cost (SGD)','Source','Date Acquired','Latest Market Value (SGD)','Image URL','Notes'];
   const rows = cards.map(c => {
     const lastVal = c.history && c.history.length ? c.history[c.history.length - 1].v : '';
     return [
@@ -604,6 +604,7 @@ function exportCSV() {
       c.source || '',
       c.date || '',
       lastVal !== '' ? lastVal.toFixed(2) : '',
+      c.img || '',
       c.notes
     ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
   });
