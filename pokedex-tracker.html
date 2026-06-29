@@ -91,6 +91,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .r-SIR{background:#EEEDFE;color:#26215C;border:1px solid #7F77DD}
 .r-AR{background:#E1F5EE;color:#085041;border:1px solid #1D9E75}
 .r-Other{background:var(--surface1);color:var(--text2);border:1px solid var(--border)}
+.r-Promo{background:#FDE8F5;color:#7B1D5E;border:1px solid #D966B0}
+.card.placeholder{border:2px dashed #F59E42;}
 
 .card-body{padding:.75rem;flex:1}
 .dex-num{font-size:11px;color:var(--text3);margin-bottom:2px}
@@ -172,6 +174,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option value="SAR">SAR</option>
         <option value="SIR">SIR</option>
         <option value="AR">AR</option>
+        <option value="Promo">Promo</option>
         <option value="Other">Other</option>
       </select>
     </div>
@@ -251,6 +254,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="SAR">SAR</option>
           <option value="SIR">SIR</option>
           <option value="AR">AR</option>
+          <option value="Promo">Promo</option>
           <option value="Other">Other</option>
         </select>
       </div>
@@ -268,6 +272,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="owned">Owned</option>
           <option value="wishlist">Wishlist</option>
         </select>
+      </div>
+      <div class="form-group" style="flex-direction:row;align-items:center;gap:8px;display:flex">
+        <input type="checkbox" id="f_placeholder" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
+        <label for="f_placeholder" style="font-size:13px;color:var(--text2);cursor:pointer">Placeholder (slot reserved, card not yet in hand)</label>
       </div>
       <div id="purchaseSection">
         <div class="form-grid">
@@ -424,13 +432,14 @@ function render() {
     const rarClass = c.rarity ? `r-${c.rarity}` : '';
 
     return `
-    <div class="card ${isWish ? 'wishlist' : ''}">
+    <div class="card ${isWish ? 'wishlist' : ''} ${c.placeholder ? 'placeholder' : ''}">
       <div class="card-img-wrap">
         ${c.img
           ? `<img src="${c.img}" alt="${c.en} card" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
           : ''}
         <div class="no-img-icon" style="${c.img ? 'display:none' : 'display:flex'}"><i class="ti ti-photo-off"></i></div>
         ${isWish ? `<div class="wish-badge"><i class="ti ti-star" style="font-size:9px"></i> Wishlist</div>` : ''}
+        ${c.placeholder ? `<div class="wish-badge" style="background:#FFF3E0;color:#B45309;border-color:#F59E42;top:${isWish?'30px':'7px'}"><i class="ti ti-clock" style="font-size:9px"></i> Placeholder</div>` : ''}
         ${c.rarity ? `<span class="rarity-tag ${rarClass}">${c.rarity}</span>` : ''}
       </div>
 
@@ -529,6 +538,7 @@ function openAdd() {
   document.getElementById('f_cost').value = '';
   document.getElementById('f_source').value = 'single';
   document.getElementById('f_date').value = today();
+  document.getElementById('f_placeholder').checked = false;
   togglePurchaseSection();
   document.getElementById('addOverlay').style.display = 'flex';
 }
@@ -549,6 +559,7 @@ function openEdit(id) {
   document.getElementById('f_source').value = c.source || 'single';
   document.getElementById('f_date').value = c.date || today();
   document.getElementById('f_notes').value = c.notes || '';
+  document.getElementById('f_placeholder').checked = c.placeholder || false;
   togglePurchaseSection();
   document.getElementById('addOverlay').style.display = 'flex';
 }
@@ -563,8 +574,8 @@ function saveCard() {
   if (!en) { toast('English name is required'); return; }
   const status = document.getElementById('f_status').value;
   const wishCount = cards.filter(c => c.status === 'wishlist' && c.id !== editId).length;
-  if (status === 'wishlist' && wishCount >= 3) {
-    toast('Max 3 wishlist cards — own or remove one first');
+  if (status === 'wishlist' && wishCount >= 100) {
+    toast('Max 100 wishlist cards — own or remove one first');
     return;
   }
   const id = editId || (Math.max(0, ...cards.map(c => c.id)) + 1);
@@ -579,6 +590,7 @@ function saveCard() {
     set: document.getElementById('f_set').value.trim(),
     img: document.getElementById('f_img').value.trim(),
     status,
+    placeholder: document.getElementById('f_placeholder').checked,
     cost: status === 'owned' ? (parseFloat(document.getElementById('f_cost').value) || null) : null,
     source: status === 'owned' ? document.getElementById('f_source').value : null,
     date: status === 'owned' ? document.getElementById('f_date').value : null,
@@ -688,8 +700,8 @@ function importCSV(event) {
       const statusRaw = (iStatus !== -1 ? row[iStatus] : 'owned').toLowerCase().trim();
       const status = (statusRaw === 'wishlist') ? 'wishlist' : 'owned';
 
-      // Skip if wishlist already at 3
-      if (status === 'wishlist' && cards.filter(c => c.status === 'wishlist').length >= 3) {
+      // Skip if wishlist already at 100
+      if (status === 'wishlist' && cards.filter(c => c.status === 'wishlist').length >= 100) {
         skipped++; continue;
       }
 
