@@ -677,6 +677,7 @@ function importCSV(event) {
     if (iEn === -1) { toast('CSV must have an "English" column'); return; }
 
     let added = 0, skipped = 0;
+    cards = [];
     const nextId = () => Math.max(0, ...cards.map(c => c.id), 0) + 1;
 
     for (let i = 1; i < lines.length; i++) {
