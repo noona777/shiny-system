@@ -177,6 +177,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <button class="btn primary" onclick="openAdd()"><i class="ti ti-plus"></i> Add card</button>
     <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i> Export</button>
+    <button class="btn" onclick="triggerImport()" title="Import from CSV"><i class="ti ti-upload"></i> Import</button>
+    <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
   </div>
 
   <!-- Stats -->
@@ -614,6 +616,112 @@ function exportCSV() {
   a.click();
   URL.revokeObjectURL(url);
   toast('CSV exported!');
+}
+
+// ── CSV Import ─────────────────────────────────────────────────────────
+function triggerImport() {
+  document.getElementById('csvFileInput').value = '';
+  document.getElementById('csvFileInput').click();
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { toast('CSV is empty or has no data rows'); return; }
+
+    // Parse a CSV line respecting quoted fields
+    function parseLine(line) {
+      const result = [];
+      let cur = '', inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+          else inQ = !inQ;
+        } else if (ch === ',' && !inQ) {
+          result.push(cur.trim()); cur = '';
+        } else cur += ch;
+      }
+      result.push(cur.trim());
+      return result;
+    }
+
+    const headers = parseLine(lines[0]).map(h => h.toLowerCase());
+    // Map header names to field keys
+    const col = (names) => {
+      for (const n of names) {
+        const idx = headers.findIndex(h => h.includes(n));
+        if (idx !== -1) return idx;
+      }
+      return -1;
+    };
+    const iDex    = col(['dex']);
+    const iEn     = col(['english']);
+    const iJp     = col(['japanese']);
+    const iSc     = col(['chinese']);
+    const iRar    = col(['rarity']);
+    const iSet    = col(['set']);
+    const iStatus = col(['status']);
+    const iCost   = col(['cost']);
+    const iSource = col(['source']);
+    const iDate   = col(['date']);
+    const iMkt    = col(['market']);
+    const iNotes  = col(['notes']);
+    const iImg    = col(['img', 'image']);
+
+    if (iEn === -1) { toast('CSV must have an "English" column'); return; }
+
+    let added = 0, skipped = 0;
+    const nextId = () => Math.max(0, ...cards.map(c => c.id), 0) + 1;
+
+    for (let i = 1; i < lines.length; i++) {
+      const row = parseLine(lines[i]);
+      const en = (iEn !== -1 ? row[iEn] : '').trim();
+      if (!en) { skipped++; continue; }
+
+      const statusRaw = (iStatus !== -1 ? row[iStatus] : 'owned').toLowerCase().trim();
+      const status = (statusRaw === 'wishlist') ? 'wishlist' : 'owned';
+
+      // Skip if wishlist already at 3
+      if (status === 'wishlist' && cards.filter(c => c.status === 'wishlist').length >= 3) {
+        skipped++; continue;
+      }
+
+      const costVal = iCost !== -1 ? parseFloat(row[iCost]) : NaN;
+      const mktVal  = iMkt  !== -1 ? parseFloat(row[iMkt])  : NaN;
+
+      const history = (!isNaN(mktVal) && mktVal > 0)
+        ? [{ d: today(), v: mktVal }]
+        : [];
+
+      const card = {
+        id:      nextId(),
+        dex:     (iDex !== -1 ? row[iDex] : '???').trim() || '???',
+        en,
+        jp:      (iJp  !== -1 ? row[iJp]  : '').trim(),
+        sc:      (iSc  !== -1 ? row[iSc]  : '').trim(),
+        rarity:  (iRar !== -1 ? row[iRar] : '').trim(),
+        set:     (iSet !== -1 ? row[iSet] : '').trim(),
+        img:     (iImg !== -1 ? row[iImg] : '').trim(),
+        status,
+        cost:    (status === 'owned' && !isNaN(costVal) && costVal > 0) ? costVal : null,
+        source:  (iSource !== -1 ? row[iSource] : 'single').trim() || 'single',
+        date:    (iDate  !== -1 ? row[iDate]  : today()).trim() || today(),
+        notes:   (iNotes !== -1 ? row[iNotes] : '').trim(),
+        history,
+      };
+      cards.push(card);
+      added++;
+    }
+
+    save(); render();
+    toast(`Imported ${added} card${added !== 1 ? 's' : ''}${skipped ? ` (${skipped} skipped)` : ''}`);
+  };
+  reader.readAsText(file);
 }
 
 // ── Overlay helpers ────────────────────────────────────────────────────
