@@ -87,12 +87,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .no-img-icon{font-size:36px;color:var(--text3)}
 .wish-badge{position:absolute;top:7px;right:7px;background:var(--wish-bg);color:var(--wish);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--wish-border);display:flex;align-items:center;gap:3px}
 .rarity-tag{position:absolute;bottom:6px;left:7px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
-.r-UR{background:#FDF3D0;color:#7A4800;border:1px solid #E8A800}
-.r-SAR{background:#EEEDFE;color:#26215C;border:1px solid #7F77DD}
+.r-SAR{background:#FAEEDA;color:#633806;border:1px solid #EF9F27}
+.r-SIR{background:#EEEDFE;color:#26215C;border:1px solid #7F77DD}
 .r-AR{background:#E1F5EE;color:#085041;border:1px solid #1D9E75}
-.r-RR{background:#EFF6FF;color:#1e3a5f;border:1px solid #93C5FD}
+.r-Other{background:var(--surface1);color:var(--text2);border:1px solid var(--border)}
 .r-Promo{background:#FDE8F5;color:#7B1D5E;border:1px solid #D966B0}
-.r-Custom{background:var(--surface1);color:var(--text2);border:1px solid var(--border2)}
 .card.placeholder{border:2px dashed #F59E42;}
 
 .card-body{padding:.75rem;flex:1}
@@ -156,11 +155,74 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .stats-row{grid-template-columns:repeat(3,1fr)}
   .topbar{gap:8px}
 }
+
+/* ── View switcher ── */
+.view-tabs{display:flex;gap:0;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;width:fit-content}
+.view-tab{padding:6px 16px;font-size:13px;border:none;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;border-right:1px solid var(--border2)}
+.view-tab:last-child{border-right:none}
+.view-tab.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.view-tab:hover:not(.active){background:var(--surface1)}
+
+/* ── Binder shell ── */
+#binderView{display:none}
+.binder-controls{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.binder-controls select{height:34px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none}
+.binder-counter{font-size:13px;color:var(--text3);margin-left:auto}
+
+/* ── Book spread ── */
+.binder-book{display:flex;align-items:stretch;gap:0;background:#2a1f14;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.45);min-height:480px;position:relative}
+.binder-spine{width:28px;background:linear-gradient(to right,#1a0f08,#3d2a18,#1a0f08);flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;box-shadow:inset -3px 0 8px rgba(0,0,0,.4),inset 3px 0 8px rgba(0,0,0,.4)}
+.binder-spine::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 18px,rgba(0,0,0,.15) 18px,rgba(0,0,0,.15) 19px)}
+.binder-page{flex:1;background:#1e2a1e;padding:18px 14px;display:flex;flex-direction:column;gap:4px;position:relative}
+.binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 30px,rgba(255,255,255,.015) 30px,rgba(255,255,255,.015) 31px);pointer-events:none}
+.binder-page-label{font-size:10px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}
+.binder-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;flex:1}
+
+/* ── Binder card slot ── */
+.bslot{aspect-ratio:2.5/3.5;border-radius:4px;cursor:pointer;position:relative;perspective:600px}
+.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);border-radius:4px}
+.bslot.flipped .bslot-inner{transform:rotateY(180deg)}
+.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px;overflow:hidden}
+.bslot-front{background:#0d1a0d;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
+.bslot-front img{width:100%;height:100%;object-fit:cover;display:block}
+.bslot-front .no-art{font-size:16px;color:rgba(255,255,255,.2);display:flex;flex-direction:column;align-items:center;gap:3px}
+.bslot-front .no-art span{font-size:8px;color:rgba(255,255,255,.2)}
+.bslot-front .wish-dot{position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--wish);border:1px solid rgba(255,255,255,.3)}
+.bslot-front .rarity-dot{position:absolute;bottom:3px;left:3px;width:7px;height:7px;border-radius:50%}
+.rd-UR{background:#E8A800}.rd-SAR{background:#7F77DD}.rd-AR{background:#1D9E75}.rd-RR{background:#93C5FD}.rd-Promo{background:#D966B0}.rd-Custom{background:#888}
+
+.bslot-back{background:linear-gradient(135deg,#1a2a3a,#0d1a2a);transform:rotateY(180deg);border:1px solid rgba(255,255,255,.12);padding:5px;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.bback-dex{font-size:8px;color:rgba(255,255,255,.4);line-height:1}
+.bback-name{font-size:9px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:1px}
+.bback-alt{font-size:7px;color:rgba(255,255,255,.5);line-height:1.2}
+.bback-rarity{font-size:7px;font-weight:600;padding:1px 4px;border-radius:3px;width:fit-content;margin-top:2px}
+.bback-set{font-size:7px;color:rgba(255,255,255,.4);line-height:1.2;margin-top:1px}
+.bback-cost{font-size:8px;color:#7dd3a8;font-weight:600;margin-top:3px}
+.bback-date{font-size:7px;color:rgba(255,255,255,.35);margin-top:1px}
+.bback-notes{font-size:7px;color:rgba(255,255,255,.4);font-style:italic;margin-top:2px;border-top:1px solid rgba(255,255,255,.08);padding-top:2px;line-height:1.3}
+
+/* ── Nav bar below book ── */
+.binder-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1rem}
+.binder-nav button{display:flex;align-items:center;gap:6px;padding:8px 20px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+.binder-nav button:hover:not(:disabled){background:var(--surface1)}
+.binder-nav button:disabled{opacity:.35;cursor:not-allowed}
+.binder-nav .page-info{font-size:13px;color:var(--text2);min-width:100px;text-align:center}
+
+/* ── Mobile binder (3×3 per page, single page) ── */
+@media(max-width:700px){
+  .binder-book{flex-direction:column;min-height:unset}
+  .binder-spine{width:100%;height:16px;background:linear-gradient(to bottom,#1a0f08,#3d2a18,#1a0f08)}
+  .binder-spine::before{background:repeating-linear-gradient(to right,transparent,transparent 18px,rgba(0,0,0,.15) 18px,rgba(0,0,0,.15) 19px)}
+  .binder-page{padding:12px}
+  .binder-grid{grid-template-columns:repeat(3,1fr);gap:6px}
+  .bslot-back{padding:4px}
+  .bback-name{font-size:8px}
+}
 </style>
 </head>
 <body>
 
-<div class="app">
+<div class="app" id="collectionView">
 
   <!-- Top bar -->
   <div class="topbar">
@@ -168,16 +230,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="pokeball"></div>
       Pokédex Tracker
     </div>
+    <!-- View switcher -->
+    <div class="view-tabs">
+      <button class="view-tab active" id="tabCollection" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
+      <button class="view-tab" id="tabBinder" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+    </div>
     <div class="search-row">
       <input type="text" id="searchInput" placeholder="Name, # or set..." oninput="render()">
       <select id="rarityFilter" onchange="render()">
         <option value="">All rarities</option>
-        <option value="UR">UR / HR / ★★★</option>
-        <option value="SAR">SAR / SIR / ★★</option>
-        <option value="AR">AR / IR / ★</option>
-        <option value="RR">RR / U / R / C</option>
+        <option value="SAR">SAR</option>
+        <option value="SIR">SIR</option>
+        <option value="AR">AR</option>
         <option value="Promo">Promo</option>
-        <option value="Custom">Custom</option>
+        <option value="Other">Other</option>
       </select>
     </div>
     <button class="btn primary" onclick="openAdd()"><i class="ti ti-plus"></i> Add card</button>
@@ -206,7 +272,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 </div>
 
-<!-- Toast -->
+<!-- ══ BINDER VIEW ══════════════════════════════════════════════════════ -->
+<div id="binderView" class="app" style="display:none">
+
+  <div class="binder-controls">
+    <select id="binderFilter" onchange="renderBinder()">
+      <option value="all">All cards</option>
+      <option value="owned">Owned only</option>
+      <option value="wishlist">Wishlist only</option>
+    </select>
+    <span class="binder-counter" id="binderCounter"></span>
+  </div>
+
+  <!-- Book spread -->
+  <div class="binder-book">
+    <!-- Left page -->
+    <div class="binder-page" id="binderPageLeft">
+      <div class="binder-page-label" id="binderLabelLeft"></div>
+      <div class="binder-grid" id="binderGridLeft"></div>
+    </div>
+    <!-- Spine -->
+    <div class="binder-spine"></div>
+    <!-- Right page -->
+    <div class="binder-page" id="binderPageRight">
+      <div class="binder-page-label" id="binderLabelRight"></div>
+      <div class="binder-grid" id="binderGridRight"></div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="binder-nav">
+    <button id="binderPrev" onclick="binderPrevSpread()"><i class="ti ti-chevron-left"></i> Prev</button>
+    <span class="page-info" id="binderPageInfo"></span>
+    <button id="binderNext" onclick="binderNextSpread()">Next <i class="ti ti-chevron-right"></i></button>
+  </div>
+
+</div>
 <div class="toast" id="toast"></div>
 
 <!-- Log price modal -->
@@ -253,12 +354,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="form-label">Rarity</div>
         <select id="f_rarity">
           <option value="">Select rarity</option>
-          <option value="UR">UR / HR / ★★★</option>
-          <option value="SAR">SAR / SIR / ★★</option>
-          <option value="AR">AR / IR / ★</option>
-          <option value="RR">RR / U / R / C</option>
+          <option value="SAR">SAR</option>
+          <option value="SIR">SIR</option>
+          <option value="AR">AR</option>
           <option value="Promo">Promo</option>
-          <option value="Custom">Custom</option>
+          <option value="Other">Other</option>
         </select>
       </div>
       <div class="form-group">
@@ -432,15 +532,7 @@ function render() {
     const isWish = c.status === 'wishlist';
     const lastVal = c.history && c.history.length ? c.history[c.history.length - 1].v : null;
     const blurClass = pricesHidden ? 'blurred' : '';
-    const RARITY_MAP = {
-      'UR':     { cls: 'r-UR',     label: 'UR / HR / ★★★' },
-      'SAR':    { cls: 'r-SAR',    label: 'SAR / SIR / ★★' },
-      'AR':     { cls: 'r-AR',     label: 'AR / IR / ★' },
-      'RR':     { cls: 'r-RR',     label: 'RR / U / R / C' },
-      'Promo':  { cls: 'r-Promo',  label: 'Promo' },
-      'Custom': { cls: 'r-Custom', label: 'Custom' },
-    };
-    const rarInfo = c.rarity ? (RARITY_MAP[c.rarity] || { cls: 'r-Custom', label: c.rarity }) : null;
+    const rarClass = c.rarity ? `r-${c.rarity}` : '';
 
     return `
     <div class="card ${isWish ? 'wishlist' : ''} ${c.placeholder ? 'placeholder' : ''}">
@@ -451,7 +543,7 @@ function render() {
         <div class="no-img-icon" style="${c.img ? 'display:none' : 'display:flex'}"><i class="ti ti-photo-off"></i></div>
         ${isWish ? `<div class="wish-badge"><i class="ti ti-star" style="font-size:9px"></i> Wishlist</div>` : ''}
         ${c.placeholder ? `<div class="wish-badge" style="background:#FFF3E0;color:#B45309;border-color:#F59E42;top:${isWish?'30px':'7px'}"><i class="ti ti-clock" style="font-size:9px"></i> Placeholder</div>` : ''}
-        ${c.rarity ? `<span class="rarity-tag ${rarInfo.cls}">${rarInfo.label}</span>` : ''}
+        ${c.rarity ? `<span class="rarity-tag ${rarClass}">${c.rarity}</span>` : ''}
       </div>
 
       <div class="card-body">
@@ -756,6 +848,166 @@ function closeOverlay(id) { document.getElementById(id).style.display = 'none'; 
 document.querySelectorAll('.overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) closeOverlay(el.id); });
 });
+
+// ── View switcher ──────────────────────────────────────────────────────
+let currentView = 'collection';
+
+function switchView(view) {
+  currentView = view;
+  const isCollection = view === 'collection';
+  document.getElementById('collectionView').style.display = isCollection ? '' : 'none';
+  document.getElementById('binderView').style.display     = isCollection ? 'none' : 'block';
+  document.getElementById('tabCollection').classList.toggle('active',  isCollection);
+  document.getElementById('tabBinder').classList.toggle('active', !isCollection);
+  if (!isCollection) renderBinder();
+}
+
+// ── Binder state ───────────────────────────────────────────────────────
+const SLOTS_PER_PAGE = 9 * 9; // 81
+let binderSpread = 0;          // 0-indexed spread number
+let binderCards  = [];         // filtered + sorted cards for current binder session
+
+const RARITY_DOT = {
+  UR:'rd-UR', SAR:'rd-SAR', AR:'rd-AR', RR:'rd-RR', Promo:'rd-Promo', Custom:'rd-Custom'
+};
+const RARITY_BACK_STYLE = {
+  UR:    'background:#FDF3D0;color:#7A4800',
+  SAR:   'background:#EEEDFE;color:#26215C',
+  AR:    'background:#E1F5EE;color:#085041',
+  RR:    'background:#EFF6FF;color:#1e3a5f',
+  Promo: 'background:#FDE8F5;color:#7B1D5E',
+  Custom:'background:#eee;color:#555',
+};
+
+// Track which slots are flipped; key = card id
+const flipped = new Set();
+
+function isMobile() { return window.innerWidth <= 700; }
+
+function renderBinder() {
+  const filter = document.getElementById('binderFilter').value;
+  flipped.clear();
+
+  // Filter + sort by dex
+  binderCards = cards
+    .filter(c => {
+      if (filter === 'owned'    && c.status !== 'owned')    return false;
+      if (filter === 'wishlist' && c.status !== 'wishlist') return false;
+      return true;
+    })
+    .sort((a, b) => (parseInt(a.dex) || 9999) - (parseInt(b.dex) || 9999));
+
+  // On mobile only one page (3×3=9) per spread side; we show one page at a time
+  binderSpread = 0;
+  drawSpread();
+}
+
+function drawSpread() {
+  const mobile = isMobile();
+  const perPage = mobile ? 9 : SLOTS_PER_PAGE; // 9 on mobile, 81 on desktop
+  const totalSpreads = mobile
+    ? Math.max(1, Math.ceil(binderCards.length / perPage))
+    : Math.max(1, Math.ceil(binderCards.length / (perPage * 2)));
+
+  // Clamp
+  if (binderSpread >= totalSpreads) binderSpread = totalSpreads - 1;
+  if (binderSpread < 0) binderSpread = 0;
+
+  if (mobile) {
+    // Single page mode — hide right page + spine
+    document.getElementById('binderPageRight').style.display = 'none';
+    document.querySelector('.binder-spine').style.display    = 'none';
+    const start = binderSpread * perPage;
+    const slice = binderCards.slice(start, start + perPage);
+    document.getElementById('binderLabelLeft').textContent = `Page ${binderSpread + 1}`;
+    document.getElementById('binderGridLeft').innerHTML    = buildSlots(slice, start);
+    document.getElementById('binderCounter').textContent   = `${binderCards.length} cards · ${totalSpreads} page${totalSpreads!==1?'s':''}`;
+    document.getElementById('binderPageInfo').textContent  = `Page ${binderSpread + 1} / ${totalSpreads}`;
+  } else {
+    document.getElementById('binderPageRight').style.display = '';
+    document.querySelector('.binder-spine').style.display    = '';
+    const leftStart  = binderSpread * perPage * 2;
+    const rightStart = leftStart + perPage;
+    const leftSlice  = binderCards.slice(leftStart,  leftStart  + perPage);
+    const rightSlice = binderCards.slice(rightStart, rightStart + perPage);
+    const spreadNum  = binderSpread + 1;
+    document.getElementById('binderLabelLeft').textContent  = `Page ${spreadNum * 2 - 1}`;
+    document.getElementById('binderLabelRight').textContent = `Page ${spreadNum * 2}`;
+    document.getElementById('binderGridLeft').innerHTML     = buildSlots(leftSlice,  leftStart);
+    document.getElementById('binderGridRight').innerHTML    = buildSlots(rightSlice, rightStart);
+    document.getElementById('binderCounter').textContent    = `${binderCards.length} cards · ${totalSpreads * 2} pages`;
+    document.getElementById('binderPageInfo').textContent   = `Spread ${spreadNum} / ${totalSpreads}`;
+  }
+
+  document.getElementById('binderPrev').disabled = binderSpread === 0;
+  document.getElementById('binderNext').disabled = binderSpread >= totalSpreads - 1;
+}
+
+function buildSlots(slice, startIdx) {
+  if (!slice.length) {
+    return `<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:13px;padding:2rem">No cards here</div>`;
+  }
+  return slice.map((c, i) => {
+    const globalIdx = startIdx + i;
+    const isWish    = c.status === 'wishlist';
+    const dotCls    = RARITY_DOT[c.rarity] || 'rd-Custom';
+    const backStyle = RARITY_BACK_STYLE[c.rarity] || 'background:#eee;color:#555';
+    const lastVal   = c.history && c.history.length ? c.history[c.history.length-1].v : null;
+
+    const front = `
+      <div class="bslot-front">
+        ${c.img
+          ? `<img src="${c.img}" alt="${c.en}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="no-art" style="${c.img ? 'display:none' : 'display:flex'}">
+          <i class="ti ti-photo-off"></i>
+          <span>#${c.dex}</span>
+        </div>
+        ${isWish ? `<div class="wish-dot" title="Wishlist"></div>` : ''}
+        ${c.rarity ? `<div class="rarity-dot ${dotCls}" title="${c.rarity}"></div>` : ''}
+      </div>`;
+
+    const back = `
+      <div class="bslot-back">
+        <div class="bback-dex">#${c.dex || '???'}</div>
+        <div class="bback-name">${c.en}</div>
+        ${c.jp || c.sc ? `<div class="bback-alt">${[c.jp, c.sc].filter(Boolean).join(' · ')}</div>` : ''}
+        ${c.rarity ? `<div class="bback-rarity" style="${backStyle}">${c.rarity}</div>` : ''}
+        ${c.set ? `<div class="bback-set">${c.set}</div>` : ''}
+        ${!isWish && c.cost != null ? `<div class="bback-cost">S$${c.cost.toFixed(2)}</div>` : ''}
+        ${lastVal != null ? `<div class="bback-cost" style="color:#93C5FD">Mkt S$${lastVal.toFixed(0)}</div>` : ''}
+        ${c.date ? `<div class="bback-date">${c.date}</div>` : ''}
+        ${c.notes ? `<div class="bback-notes">${c.notes}</div>` : ''}
+        ${isWish ? `<div class="bback-notes" style="color:var(--wish)">★ Wishlist</div>` : ''}
+      </div>`;
+
+    return `
+      <div class="bslot" id="bslot-${globalIdx}" onclick="flipSlot(${globalIdx})" title="${c.en}">
+        <div class="bslot-inner">
+          ${front}
+          ${back}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function flipSlot(idx) {
+  const el = document.getElementById(`bslot-${idx}`);
+  if (!el) return;
+  if (flipped.has(idx)) {
+    flipped.delete(idx);
+    el.classList.remove('flipped');
+  } else {
+    flipped.add(idx);
+    el.classList.add('flipped');
+  }
+}
+
+function binderPrevSpread() { if (binderSpread > 0) { binderSpread--; flipped.clear(); drawSpread(); } }
+function binderNextSpread() { binderSpread++; flipped.clear(); drawSpread(); }
+
+// Re-render binder on resize (mobile ↔ desktop)
+window.addEventListener('resize', () => { if (currentView === 'binder') drawSpread(); });
 
 // ── Init ───────────────────────────────────────────────────────────────
 document.getElementById('f_date').value = today();
