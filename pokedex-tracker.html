@@ -174,7 +174,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .binder-spine{width:32px;background:linear-gradient(to right,#0f0800,#3d2a18,#5c3d1e,#3d2a18,#0f0800);flex-shrink:0;position:relative;z-index:2;box-shadow:inset -4px 0 10px rgba(0,0,0,.5),inset 4px 0 10px rgba(0,0,0,.5)}
 .binder-spine::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
 .binder-spine::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:100%;background:rgba(0,0,0,.3)}
-.binder-page{flex:1;background:#1a261a;padding:20px 16px;display:flex;flex-direction:column;position:relative;min-width:0}
+.binder-page{flex:1;background:#1a261a;padding:20px 16px;display:flex;flex-direction:column;position:relative;min-width:0;contain:layout paint}
 .binder-page-left{background:linear-gradient(to right,#162016,#1e2a1e)}
 .binder-page-right{background:linear-gradient(to left,#162016,#1e2a1e)}
 .binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 40px,rgba(255,255,255,.012) 40px,rgba(255,255,255,.012) 41px);pointer-events:none}
@@ -184,10 +184,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .binder-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:10px;flex:1;aspect-ratio:1/1}
 
 /* ── Binder card slot ── */
-.bslot{aspect-ratio:2.5/3.5;border-radius:6px;cursor:pointer;position:relative;perspective:800px}
-.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:6px}
+.bslot{aspect-ratio:2.5/3.5;border-radius:6px;cursor:pointer;position:relative;perspective:800px;-webkit-perspective:800px}
+.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:6px;will-change:transform}
 .bslot.flipped .bslot-inner{transform:rotateY(180deg)}
-.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:6px;overflow:hidden}
+.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;overflow:hidden;transform:translateZ(0);-webkit-transform:translateZ(0)}
 
 /* Front — artwork */
 .bslot-front{background:#0a140a;border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 12px rgba(0,0,0,.4)}
@@ -217,16 +217,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── Mobile: stack pages vertically ── */
 @media(max-width:640px){
-  .binder-book{flex-direction:column;overflow:visible;border-radius:12px;box-shadow:none}
-  .binder-page{border-radius:0}
-  .binder-page-left{border-radius:12px 12px 0 0}
-  .binder-page-right{border-radius:0 0 12px 12px}
-  .binder-spine{width:100%;height:16px;background:linear-gradient(to bottom,#0f0800,#3d2a18,#5c3d1e,#3d2a18,#0f0800)}
-  .binder-spine::before{background:repeating-linear-gradient(to right,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
-  .binder-spine::after{width:100%;height:2px;top:50%;left:0;transform:translateY(-50%)}
-  .binder-page{padding:12px;flex:unset}
-  /* Drop fixed square so grid grows tall enough to show all cards */
-  .binder-grid{gap:8px;aspect-ratio:unset;grid-template-rows:unset}
+  .binder-page{padding:12px;flex:unset;border-radius:12px}
+  .binder-grid{gap:8px}
   /* Hide pagination on mobile — continuous scroll instead */
   .binder-nav{display:none}
 }
@@ -304,8 +296,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span class="binder-counter" id="binderCounter"></span>
   </div>
 
-  <!-- Book spread: left page (9 slots) + spine + right page (9 slots) -->
-  <div class="binder-book">
+  <!-- Book spread: left page (9 slots) + spine + right page (9 slots) — desktop -->
+  <div class="binder-book" id="binderBook">
     <div class="binder-page binder-page-left" id="binderPageLeft">
       <div class="binder-page-label" id="binderLabelLeft"></div>
       <div class="binder-grid" id="binderGridLeft"></div>
@@ -315,6 +307,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="binder-page-label" id="binderLabelRight"></div>
       <div class="binder-grid" id="binderGridRight"></div>
     </div>
+  </div>
+
+  <!-- Continuous single grid — mobile -->
+  <div class="binder-page" id="binderMobilePage" style="display:none;border-radius:12px">
+    <div class="binder-grid" id="binderGridMobile" style="grid-template-columns:repeat(3,1fr);aspect-ratio:unset;grid-template-rows:unset"></div>
   </div>
 
   <!-- Nav -->
@@ -918,16 +915,12 @@ function renderBinder() {
 function isMobile() { return window.innerWidth <= 640; }
 
 function drawSpread() {
-  // ── Mobile: continuous scroll — all cards across stacked pages ────────
+  // ── Mobile: continuous scroll — single grid, all cards in dex order ───
   if (isMobile()) {
-    const half = Math.ceil(binderCards.length / 2);
-    const leftSlice  = binderCards.slice(0, half);
-    const rightSlice = binderCards.slice(half);
+    document.getElementById('binderBook').style.display = 'none';
+    document.getElementById('binderMobilePage').style.display = 'flex';
 
-    document.getElementById('binderLabelLeft').textContent  = 'Page 1';
-    document.getElementById('binderLabelRight').textContent = 'Page 2';
-    document.getElementById('binderGridLeft').innerHTML     = buildSlots(leftSlice, 0);
-    document.getElementById('binderGridRight').innerHTML    = buildSlots(rightSlice, half);
+    document.getElementById('binderGridMobile').innerHTML = buildSlots(binderCards, 0);
     document.getElementById('binderCounter').textContent    =
       `${binderCards.length} card${binderCards.length !== 1 ? 's' : ''}`;
     document.getElementById('binderPageInfo').textContent   = '';
@@ -935,6 +928,9 @@ function drawSpread() {
     document.getElementById('binderNext').disabled = true;
     return;
   }
+
+  document.getElementById('binderBook').style.display = 'flex';
+  document.getElementById('binderMobilePage').style.display = 'none';
 
   // ── Desktop: paginated spreads (9 slots per page, 18 per spread) ──────
   const perSpread    = SLOTS_PER_PAGE * 2; // 18
