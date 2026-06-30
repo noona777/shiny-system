@@ -170,53 +170,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .binder-counter{font-size:13px;color:var(--text3);margin-left:auto}
 
 /* ── Book spread ── */
-.binder-book{display:flex;align-items:stretch;gap:0;background:#2a1f14;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.45);min-height:480px;position:relative}
-.binder-spine{width:28px;background:linear-gradient(to right,#1a0f08,#3d2a18,#1a0f08);flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;z-index:2;box-shadow:inset -3px 0 8px rgba(0,0,0,.4),inset 3px 0 8px rgba(0,0,0,.4)}
-.binder-spine::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 18px,rgba(0,0,0,.15) 18px,rgba(0,0,0,.15) 19px)}
-.binder-page{flex:1;background:#1e2a1e;padding:18px 14px;display:flex;flex-direction:column;gap:4px;position:relative}
-.binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 30px,rgba(255,255,255,.015) 30px,rgba(255,255,255,.015) 31px);pointer-events:none}
-.binder-page-label{font-size:10px;color:rgba(255,255,255,.3);text-align:center;margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}
-.binder-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;flex:1}
+.binder-book{display:flex;align-items:stretch;gap:0;background:#2a1f14;border-radius:16px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.45);position:relative}
+.binder-spine{width:32px;background:linear-gradient(to right,#0f0800,#3d2a18,#5c3d1e,#3d2a18,#0f0800);flex-shrink:0;position:relative;z-index:2;box-shadow:inset -4px 0 10px rgba(0,0,0,.5),inset 4px 0 10px rgba(0,0,0,.5)}
+.binder-spine::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
+.binder-spine::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:100%;background:rgba(0,0,0,.3)}
+.binder-page{flex:1;background:#1a261a;padding:20px 16px;display:flex;flex-direction:column;position:relative;min-width:0}
+.binder-page-left{background:linear-gradient(to right,#162016,#1e2a1e)}
+.binder-page-right{background:linear-gradient(to left,#162016,#1e2a1e)}
+.binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 40px,rgba(255,255,255,.012) 40px,rgba(255,255,255,.012) 41px);pointer-events:none}
+.binder-page-label{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-bottom:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+
+/* 3×3 grid — slots sized to fill the page nicely */
+.binder-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:10px;flex:1;aspect-ratio:1/1}
 
 /* ── Binder card slot ── */
-.bslot{aspect-ratio:2.5/3.5;border-radius:4px;cursor:pointer;position:relative;perspective:600px}
-.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);border-radius:4px}
+.bslot{aspect-ratio:2.5/3.5;border-radius:6px;cursor:pointer;position:relative;perspective:800px}
+.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:6px}
 .bslot.flipped .bslot-inner{transform:rotateY(180deg)}
-.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:4px;overflow:hidden}
-.bslot-front{background:#0d1a0d;border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
-.bslot-front img{width:100%;height:100%;object-fit:cover;display:block}
-.bslot-front .no-art{font-size:16px;color:rgba(255,255,255,.2);display:flex;flex-direction:column;align-items:center;gap:3px}
-.bslot-front .no-art span{font-size:8px;color:rgba(255,255,255,.2)}
-.bslot-front .wish-dot{position:absolute;top:3px;right:3px;width:7px;height:7px;border-radius:50%;background:var(--wish);border:1px solid rgba(255,255,255,.3)}
-.bslot-front .rarity-dot{position:absolute;bottom:3px;left:3px;width:7px;height:7px;border-radius:50%}
+.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:6px;overflow:hidden}
+
+/* Front — artwork */
+.bslot-front{background:#0a140a;border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 12px rgba(0,0,0,.4)}
+.bslot-front img{width:100%;height:100%;object-fit:cover;display:block;border-radius:5px}
+.bslot-front .no-art{font-size:22px;color:rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;gap:4px}
+.bslot-front .no-art span{font-size:10px;color:rgba(255,255,255,.18)}
+.bslot-front .wish-dot{position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--wish);border:1.5px solid rgba(255,255,255,.4);box-shadow:0 0 4px var(--wish)}
+.bslot-front .rarity-dot{position:absolute;bottom:5px;left:5px;width:9px;height:9px;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,.5)}
 .rd-UR{background:#E8A800}.rd-SAR{background:#7F77DD}.rd-AR{background:#1D9E75}.rd-RR{background:#93C5FD}.rd-Promo{background:#D966B0}.rd-Custom{background:#888}
 
-.bslot-back{background:linear-gradient(135deg,#1a2a3a,#0d1a2a);transform:rotateY(180deg);border:1px solid rgba(255,255,255,.12);padding:5px;display:flex;flex-direction:column;gap:3px;justify-content:center}
-.bback-dex{font-size:8px;color:rgba(255,255,255,.4);line-height:1}
-.bback-name{font-size:9px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:1px}
-.bback-alt{font-size:7px;color:rgba(255,255,255,.5);line-height:1.2}
-.bback-rarity{font-size:7px;font-weight:600;padding:1px 4px;border-radius:3px;width:fit-content;margin-top:2px}
-.bback-set{font-size:7px;color:rgba(255,255,255,.4);line-height:1.2;margin-top:1px}
-.bback-cost{font-size:8px;color:#7dd3a8;font-weight:600;margin-top:3px}
-.bback-date{font-size:7px;color:rgba(255,255,255,.35);margin-top:1px}
-.bback-notes{font-size:7px;color:rgba(255,255,255,.4);font-style:italic;margin-top:2px;border-top:1px solid rgba(255,255,255,.08);padding-top:2px;line-height:1.3}
+/* Back — details */
+.bslot-back{background:linear-gradient(145deg,#1a2a3a,#0d1520);transform:rotateY(180deg);border:1.5px solid rgba(255,255,255,.12);padding:10px;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.bback-dex{font-size:10px;color:rgba(255,255,255,.4);line-height:1}
+.bback-name{font-size:13px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:2px}
+.bback-alt{font-size:9px;color:rgba(255,255,255,.5);line-height:1.4}
+.bback-rarity{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;width:fit-content;margin-top:3px}
+.bback-set{font-size:9px;color:rgba(255,255,255,.4);line-height:1.3;margin-top:2px}
+.bback-cost{font-size:11px;color:#7dd3a8;font-weight:600;margin-top:5px}
+.bback-date{font-size:9px;color:rgba(255,255,255,.35);margin-top:1px}
+.bback-notes{font-size:9px;color:rgba(255,255,255,.4);font-style:italic;margin-top:4px;border-top:1px solid rgba(255,255,255,.1);padding-top:4px;line-height:1.4}
 
-/* ── Nav bar below book ── */
-.binder-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1rem}
-.binder-nav button{display:flex;align-items:center;gap:6px;padding:8px 20px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+/* ── Nav bar ── */
+.binder-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1.25rem}
+.binder-nav button{display:flex;align-items:center;gap:6px;padding:8px 22px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
 .binder-nav button:hover:not(:disabled){background:var(--surface1)}
-.binder-nav button:disabled{opacity:.35;cursor:not-allowed}
-.binder-nav .page-info{font-size:13px;color:var(--text2);min-width:100px;text-align:center}
+.binder-nav button:disabled{opacity:.3;cursor:not-allowed}
+.binder-nav .page-info{font-size:13px;color:var(--text2);min-width:120px;text-align:center}
 
-/* ── Mobile binder (3×3 per page, single page) ── */
-@media(max-width:700px){
-  .binder-book{flex-direction:column;min-height:unset}
-  .binder-spine{width:100%;height:16px;background:linear-gradient(to bottom,#1a0f08,#3d2a18,#1a0f08)}
-  .binder-spine::before{background:repeating-linear-gradient(to right,transparent,transparent 18px,rgba(0,0,0,.15) 18px,rgba(0,0,0,.15) 19px)}
-  .binder-page{padding:12px}
-  .binder-grid{grid-template-columns:repeat(3,1fr);gap:6px}
-  .bslot-back{padding:4px}
-  .bback-name{font-size:8px}
+/* ── Mobile: stack pages vertically ── */
+@media(max-width:640px){
+  .binder-book{flex-direction:column}
+  .binder-spine{width:100%;height:20px;background:linear-gradient(to bottom,#0f0800,#3d2a18,#5c3d1e,#3d2a18,#0f0800)}
+  .binder-spine::before{background:repeating-linear-gradient(to right,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
+  .binder-spine::after{width:100%;height:2px;top:50%;left:0;transform:translateY(-50%)}
+  .binder-page{padding:14px}
+  .binder-grid{gap:7px}
 }
 </style>
 </head>
@@ -284,17 +291,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <span class="binder-counter" id="binderCounter"></span>
   </div>
 
-  <!-- Book spread -->
+  <!-- Book spread: left page (9 slots) + spine + right page (9 slots) -->
   <div class="binder-book">
-    <!-- Left page -->
-    <div class="binder-page" id="binderPageLeft">
+    <div class="binder-page binder-page-left" id="binderPageLeft">
       <div class="binder-page-label" id="binderLabelLeft"></div>
       <div class="binder-grid" id="binderGridLeft"></div>
     </div>
-    <!-- Spine -->
     <div class="binder-spine"></div>
-    <!-- Right page -->
-    <div class="binder-page" id="binderPageRight">
+    <div class="binder-page binder-page-right" id="binderPageRight">
       <div class="binder-page-label" id="binderLabelRight"></div>
       <div class="binder-grid" id="binderGridRight"></div>
     </div>
@@ -863,9 +867,9 @@ function switchView(view) {
 }
 
 // ── Binder state ───────────────────────────────────────────────────────
-const SLOTS_PER_PAGE = 9 * 9; // 81
-let binderSpread = 0;          // 0-indexed spread number
-let binderCards  = [];         // filtered + sorted cards for current binder session
+const SLOTS_PER_PAGE = 9; // 3×3
+let binderSpread = 0;
+let binderCards  = [];
 
 const RARITY_DOT = {
   UR:'rd-UR', SAR:'rd-SAR', AR:'rd-AR', RR:'rd-RR', Promo:'rd-Promo', Custom:'rd-Custom'
@@ -879,16 +883,11 @@ const RARITY_BACK_STYLE = {
   Custom:'background:#eee;color:#555',
 };
 
-// Track which slots are flipped; key = card id
 const flipped = new Set();
-
-function isMobile() { return window.innerWidth <= 700; }
 
 function renderBinder() {
   const filter = document.getElementById('binderFilter').value;
   flipped.clear();
-
-  // Filter + sort by dex
   binderCards = cards
     .filter(c => {
       if (filter === 'owned'    && c.status !== 'owned')    return false;
@@ -896,48 +895,36 @@ function renderBinder() {
       return true;
     })
     .sort((a, b) => (parseInt(a.dex) || 9999) - (parseInt(b.dex) || 9999));
-
-  // On mobile only one page (3×3=9) per spread side; we show one page at a time
   binderSpread = 0;
   drawSpread();
 }
 
 function drawSpread() {
-  const mobile = isMobile();
-  const perPage = mobile ? 9 : SLOTS_PER_PAGE; // 9 on mobile, 81 on desktop
-  const totalSpreads = mobile
-    ? Math.max(1, Math.ceil(binderCards.length / perPage))
-    : Math.max(1, Math.ceil(binderCards.length / (perPage * 2)));
+  // Each page = 9 slots (3×3). Each spread = 2 pages = 18 cards.
+  const perSpread   = SLOTS_PER_PAGE * 2; // 18
+  const totalSpreads = Math.max(1, Math.ceil(binderCards.length / perSpread));
 
-  // Clamp
   if (binderSpread >= totalSpreads) binderSpread = totalSpreads - 1;
-  if (binderSpread < 0) binderSpread = 0;
+  if (binderSpread < 0)             binderSpread = 0;
 
-  if (mobile) {
-    // Single page mode — hide right page + spine
-    document.getElementById('binderPageRight').style.display = 'none';
-    document.querySelector('.binder-spine').style.display    = 'none';
-    const start = binderSpread * perPage;
-    const slice = binderCards.slice(start, start + perPage);
-    document.getElementById('binderLabelLeft').textContent = `Page ${binderSpread + 1}`;
-    document.getElementById('binderGridLeft').innerHTML    = buildSlots(slice, start);
-    document.getElementById('binderCounter').textContent   = `${binderCards.length} cards · ${totalSpreads} page${totalSpreads!==1?'s':''}`;
-    document.getElementById('binderPageInfo').textContent  = `Page ${binderSpread + 1} / ${totalSpreads}`;
-  } else {
-    document.getElementById('binderPageRight').style.display = '';
-    document.querySelector('.binder-spine').style.display    = '';
-    const leftStart  = binderSpread * perPage * 2;
-    const rightStart = leftStart + perPage;
-    const leftSlice  = binderCards.slice(leftStart,  leftStart  + perPage);
-    const rightSlice = binderCards.slice(rightStart, rightStart + perPage);
-    const spreadNum  = binderSpread + 1;
-    document.getElementById('binderLabelLeft').textContent  = `Page ${spreadNum * 2 - 1}`;
-    document.getElementById('binderLabelRight').textContent = `Page ${spreadNum * 2}`;
-    document.getElementById('binderGridLeft').innerHTML     = buildSlots(leftSlice,  leftStart);
-    document.getElementById('binderGridRight').innerHTML    = buildSlots(rightSlice, rightStart);
-    document.getElementById('binderCounter').textContent    = `${binderCards.length} cards · ${totalSpreads * 2} pages`;
-    document.getElementById('binderPageInfo').textContent   = `Spread ${spreadNum} / ${totalSpreads}`;
-  }
+  const leftStart  = binderSpread * perSpread;
+  const rightStart = leftStart + SLOTS_PER_PAGE;
+  const leftSlice  = binderCards.slice(leftStart,  leftStart  + SLOTS_PER_PAGE);
+  const rightSlice = binderCards.slice(rightStart, rightStart + SLOTS_PER_PAGE);
+
+  // Page numbers: spread 0 → pages 1 & 2, spread 1 → pages 3 & 4, etc.
+  const leftPageNum  = binderSpread * 2 + 1;
+  const rightPageNum = binderSpread * 2 + 2;
+
+  document.getElementById('binderLabelLeft').textContent  = `Page ${leftPageNum}`;
+  document.getElementById('binderLabelRight').textContent = `Page ${rightPageNum}`;
+  document.getElementById('binderGridLeft').innerHTML     = buildSlots(leftSlice,  leftStart);
+  document.getElementById('binderGridRight').innerHTML    = buildSlots(rightSlice, rightStart);
+
+  document.getElementById('binderCounter').textContent  =
+    `${binderCards.length} card${binderCards.length !== 1 ? 's' : ''} · ${totalSpreads * 2} page${totalSpreads !== 1 ? 's' : ''}`;
+  document.getElementById('binderPageInfo').textContent =
+    `Pages ${leftPageNum}–${rightPageNum} of ${totalSpreads * 2}`;
 
   document.getElementById('binderPrev').disabled = binderSpread === 0;
   document.getElementById('binderNext').disabled = binderSpread >= totalSpreads - 1;
@@ -1005,9 +992,6 @@ function flipSlot(idx) {
 
 function binderPrevSpread() { if (binderSpread > 0) { binderSpread--; flipped.clear(); drawSpread(); } }
 function binderNextSpread() { binderSpread++; flipped.clear(); drawSpread(); }
-
-// Re-render binder on resize (mobile ↔ desktop)
-window.addEventListener('resize', () => { if (currentView === 'binder') drawSpread(); });
 
 // ── Init ───────────────────────────────────────────────────────────────
 document.getElementById('f_date').value = today();
