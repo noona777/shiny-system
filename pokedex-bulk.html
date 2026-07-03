@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bulk Tracker">
+<meta name="theme-color" content="#ffffff">
+<title>Bulk Card Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.33.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f8f6;--surface:#ffffff;--surface1:#f2f2f0;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:#e0e0dd;--border2:#c8c8c4;
+  --accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;
+  --success:#059669;--success-bg:#ecfdf5;
+  --danger:#dc2626;--danger-bg:#fef2f2;
+  --amber:#b45309;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --purple:#7c3aed;--purple-bg:#f5f3ff;--purple-border:#ddd6fe;
+  --radius:8px;--radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a1a;--surface:#242424;--surface1:#2e2e2e;
+    --text:#f0f0ee;--text2:#aaa;--text3:#666;
+    --border:#333;--border2:#444;
+    --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-border:#1d4ed8;
+    --success:#10b981;--success-bg:#052e22;
+    --danger:#ef4444;--danger-bg:#450a0a;
+    --amber:#f0b429;--amber-bg:#3a2a05;--amber-border:#6b4e0a;
+    --purple:#a78bfa;--purple-bg:#2a2050;--purple-border:#4c3d8f;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+.app{max-width:920px;margin:0 auto;padding:1rem;padding-bottom:5rem}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;white-space:nowrap}
+.logo-icon{width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;flex-shrink:0}
+
+.search-row{display:flex;gap:8px;flex:1;min-width:180px}
+.search-row input,.search-row select{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none}
+.search-row input{flex:1;min-width:0}
+.search-row input:focus,.search-row select:focus{border-color:var(--accent)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--surface1)}
+.btn.primary{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.btn i{font-size:15px}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem 1rem}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.stat .val{font-size:19px;font-weight:600;color:var(--text)}
+.stat .val.accent{color:var(--accent)}
+
+.filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit}
+.pill:hover{background:var(--surface1)}
+.pill.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.spacer{flex:1}
+.sort-select{height:32px;padding:0 8px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text2);font-size:12px;outline:none;font-family:inherit}
+
+/* List */
+.list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:.6rem .75rem;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row:hover{background:var(--surface1)}
+
+.thumb{width:42px;height:58px;border-radius:5px;background:var(--surface1);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--border)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb i{font-size:16px;color:var(--text3)}
+
+.row-info{flex:1;min-width:0}
+.row-name{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-meta{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
+.row-set{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.rtag{font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px;white-space:nowrap}
+.r-Common{background:var(--surface1);color:var(--text2);border:1px solid var(--border2)}
+.r-Uncommon{background:var(--success-bg);color:var(--success);border:1px solid var(--success)}
+.r-Rare{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.r-Holo{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}
+.r-Other{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+
+.qty-stepper{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.qty-stepper button{width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:inherit}
+.qty-stepper button:hover{background:var(--surface1)}
+.qty-stepper input{width:38px;height:24px;text-align:center;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;outline:none}
+.qty-stepper input:focus{border-color:var(--accent)}
+
+.price-field{display:flex;align-items:center;gap:3px;flex-shrink:0;width:82px}
+.price-field span{font-size:11px;color:var(--text3)}
+.price-field input{width:100%;height:26px;padding:0 6px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;outline:none}
+.price-field input:focus{border-color:var(--accent)}
+
+.subtotal{width:72px;flex-shrink:0;text-align:right;font-size:13px;font-weight:600;color:var(--text)}
+
+.row-actions{display:flex;gap:4px;flex-shrink:0}
+.row-actions button{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit}
+.row-actions button:hover{background:var(--surface1)}
+.row-actions button.f-del:hover{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+
+/* Mobile */
+@media(max-width:640px){
+  .row{flex-wrap:wrap;padding:.65rem}
+  .row-info{flex:1 1 100%;order:1}
+  .thumb{order:0}
+  .qty-stepper{order:2}
+  .price-field{order:3}
+  .subtotal{order:4;width:auto;flex:1;text-align:right}
+  .row-actions{order:5}
+  .topbar .logo{flex:0 0 100%}
+  .topbar .search-row{flex:0 0 100%}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;width:100%;max-width:360px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:.25rem;color:var(--text)}
+.modal .sub{font-size:13px;color:var(--text2);margin-bottom:1rem}
+.form-grid{display:grid;gap:8px}
+.form-grid input,.form-grid select{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface1);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.form-grid input:focus,.form-grid select:focus{border-color:var(--accent)}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.form-group{display:grid;gap:3px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.modal-footer button{padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface1);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+.modal-footer .confirm{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:500}
+.modal-footer .confirm:hover{opacity:.9}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty i{font-size:40px;display:block;margin-bottom:10px}
+.empty p{font-size:14px}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;padding:8px 18px;border-radius:20px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+.fab-add{position:fixed;right:1.5rem;bottom:1.5rem;width:56px;height:56px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:150}
+.fab-add:hover{transform:scale(1.06)}
+.fab-add:active{transform:scale(.96)}
+@media(max-width:480px){ .fab-add{right:1rem;bottom:1rem;width:52px;height:52px} }
+
+/* ── View switcher ── */
+.view-tabs{display:flex;gap:0;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;width:fit-content}
+.view-tab{padding:6px 16px;font-size:13px;border:none;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;border-right:1px solid var(--border2)}
+.view-tab:last-child{border-right:none}
+.view-tab.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.view-tab:hover:not(.active){background:var(--surface1)}
+@media(max-width:640px){ .topbar .view-tabs{order:1;flex:1;min-width:0} .topbar .view-tabs .view-tab{flex:1;justify-content:center} }
+
+/* ── Binder shell ── */
+#binderView{display:none}
+.binder-controls{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.binder-counter{font-size:13px;color:var(--text3);margin-left:auto}
+
+.binder-book{display:flex;align-items:stretch;gap:0;background:#2a1f14;border-radius:16px;overflow:clip;box-shadow:0 8px 40px rgba(0,0,0,.45);position:relative;width:100%;box-sizing:border-box}
+.binder-spine{width:28px;flex-shrink:0;background:linear-gradient(to right,#0f0800,#3d2a18,#5c3d1e,#3d2a18,#0f0800);position:relative;z-index:2;box-shadow:inset -4px 0 10px rgba(0,0,0,.5),inset 4px 0 10px rgba(0,0,0,.5)}
+.binder-spine::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
+.binder-spine::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:100%;background:rgba(0,0,0,.3)}
+.binder-page{flex:1 1 0;min-width:0;max-width:calc(50% - 14px);background:#1a261a;padding:16px 12px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.binder-page-left{background:linear-gradient(to right,#162016,#1e2a1e);border-radius:16px 0 0 16px}
+.binder-page-right{background:linear-gradient(to left,#162016,#1e2a1e);border-radius:0 16px 16px 0}
+.binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 40px,rgba(255,255,255,.012) 40px,rgba(255,255,255,.012) 41px);pointer-events:none}
+.binder-page-label{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-bottom:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
+
+.binder-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,auto);gap:8px;width:100%}
+
+.bslot{aspect-ratio:2.5/3.5;border-radius:6px;cursor:pointer;position:relative;perspective:800px;-webkit-perspective:800px}
+.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:6px;will-change:transform}
+.bslot.flipped .bslot-inner{transform:rotateY(180deg)}
+.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;overflow:hidden;transform:translateZ(0);-webkit-transform:translateZ(0)}
+
+.bslot-front{background:#0a140a;border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 12px rgba(0,0,0,.4)}
+.bslot-front img{width:100%;height:100%;object-fit:cover;display:block;border-radius:5px}
+.bslot-front .no-art{font-size:22px;color:rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;gap:4px}
+.bslot-front .no-art span{font-size:9px;color:rgba(255,255,255,.18);text-align:center;padding:0 4px}
+.bslot-front .qty-badge{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;border:1px solid rgba(255,255,255,.25)}
+.bslot-front .rarity-dot{position:absolute;bottom:5px;left:5px;width:9px;height:9px;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,.5)}
+.rd-Common{background:#9a9a9a}.rd-Uncommon{background:#10b981}.rd-Rare{background:#3b82f6}.rd-Holo{background:#a78bfa}.rd-Other{background:#f0b429}
+
+.bslot-back{background:linear-gradient(145deg,#1a2a3a,#0d1520);transform:rotateY(180deg);border:1.5px solid rgba(255,255,255,.12);padding:8px;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.bback-name{font-size:11px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:1px}
+.bback-set{font-size:8px;color:rgba(255,255,255,.4);line-height:1.3;margin-top:1px}
+.bback-divider{height:1px;background:rgba(255,255,255,.1);margin:5px 0}
+.bback-row{display:flex;justify-content:space-between;align-items:center}
+.bback-lbl{font-size:8px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.04em}
+.bback-val{font-size:9px;font-weight:600;color:#fff}
+
+.binder-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:1.25rem}
+.binder-nav button{display:flex;align-items:center;gap:6px;padding:8px 22px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+.binder-nav button:hover:not(:disabled){background:var(--surface1)}
+.binder-nav button:disabled{opacity:.3;cursor:not-allowed}
+.binder-nav .page-info{font-size:13px;color:var(--text2);min-width:120px;text-align:center}
+
+@media(max-width:1024px){
+  .binder-book{flex-direction:column;border-radius:12px}
+  .binder-page{flex:unset;max-width:100%;padding:12px;overflow:visible}
+  .binder-page-left{border-radius:12px 12px 0 0}
+  .binder-page-right{border-radius:0 0 12px 12px}
+  .binder-spine{width:100%;height:16px;background:linear-gradient(to bottom,#0f0800,#3d2a18,#5c3d1e,#3d2a18,#0f0800)}
+  .binder-spine::before{background:repeating-linear-gradient(to right,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
+  .binder-spine::after{width:100%;height:2px;top:50%;left:0;transform:translateY(-50%)}
+  .binder-grid{gap:8px;grid-template-rows:repeat(3,auto)}
+  .binder-nav{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="listView">
+  <div class="topbar">
+    <div class="logo"><div class="logo-icon"><i class="ti ti-cards"></i></div>Bulk Card Tracker</div>
+    <div class="view-tabs">
+      <button class="view-tab active" id="tabList" onclick="switchView('list')"><i class="ti ti-list"></i> List</button>
+      <button class="view-tab" id="tabBinder" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+    </div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Name or set..." oninput="render()">
+      <select id="rarityFilterSel" onchange="render()" style="display:none"></select>
+    </div>
+    <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i><span class="btn-label"> Export</span></button>
+    <button class="btn" onclick="triggerImport()" title="Import from CSV"><i class="ti ti-upload"></i><span class="btn-label"> Import</span></button>
+    <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <button class="pill active" data-f="all" onclick="setFilter(this,'all')">All</button>
+    <button class="pill" data-f="Common" onclick="setFilter(this,'Common')">Common</button>
+    <button class="pill" data-f="Uncommon" onclick="setFilter(this,'Uncommon')">Uncommon</button>
+    <button class="pill" data-f="Rare" onclick="setFilter(this,'Rare')">Rare</button>
+    <button class="pill" data-f="Holo" onclick="setFilter(this,'Holo')">Holo</button>
+    <button class="pill" data-f="Other" onclick="setFilter(this,'Other')">Other</button>
+    <div class="spacer"></div>
+    <select class="sort-select" id="sortSel" onchange="render()">
+      <option value="name">Sort: Name</option>
+      <option value="set">Sort: Set</option>
+      <option value="qty">Sort: Quantity</option>
+      <option value="price">Sort: Price each</option>
+      <option value="value">Sort: Total value</option>
+    </select>
+  </div>
+
+  <div class="list" id="cardList"></div>
+</div>
+
+<!-- ══ BINDER VIEW ══════════════════════════════════════════════════════ -->
+<div id="binderView" class="app">
+  <div class="topbar" style="margin-bottom:1rem">
+    <div class="logo"><div class="logo-icon"><i class="ti ti-cards"></i></div>Bulk Card Tracker</div>
+    <div class="view-tabs">
+      <button class="view-tab" id="tabList2" onclick="switchView('list')"><i class="ti ti-list"></i> List</button>
+      <button class="view-tab active" id="tabBinder2" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+    </div>
+    <select id="binderFilter" onchange="renderBinder()" style="height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none">
+      <option value="all">All cards</option>
+      <option value="Common">Common only</option>
+      <option value="Uncommon">Uncommon only</option>
+      <option value="Rare">Rare only</option>
+      <option value="Holo">Holo only</option>
+      <option value="Other">Other only</option>
+    </select>
+    <span class="binder-counter" id="binderCounter"></span>
+  </div>
+
+  <!-- Book spread: left page (9 slots) + spine + right page (9 slots) — desktop -->
+  <div class="binder-book" id="binderBook">
+    <div class="binder-page binder-page-left" id="binderPageLeft">
+      <div class="binder-page-label" id="binderLabelLeft"></div>
+      <div class="binder-grid" id="binderGridLeft"></div>
+    </div>
+    <div class="binder-spine"></div>
+    <div class="binder-page binder-page-right" id="binderPageRight">
+      <div class="binder-page-label" id="binderLabelRight"></div>
+      <div class="binder-grid" id="binderGridRight"></div>
+    </div>
+  </div>
+
+  <!-- Continuous single grid — mobile -->
+  <div class="binder-page" id="binderMobilePage" style="display:none;border-radius:12px">
+    <div class="binder-grid" id="binderGridMobile" style="grid-template-columns:repeat(3,1fr);aspect-ratio:unset;grid-template-rows:unset"></div>
+  </div>
+
+  <!-- Nav -->
+  <div class="binder-nav">
+    <button id="binderPrev" onclick="binderPrevSpread()"><i class="ti ti-chevron-left"></i> Prev</button>
+    <span class="page-info" id="binderPageInfo"></span>
+    <button id="binderNext" onclick="binderNextSpread()">Next <i class="ti ti-chevron-right"></i></button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button class="fab-add" onclick="openAdd()" title="Add card" aria-label="Add card"><i class="ti ti-plus"></i></button>
+
+<!-- Add / Edit modal -->
+<div class="overlay" id="addOverlay" style="display:none">
+  <div class="modal">
+    <h3 id="addTitle">Add card</h3>
+    <p class="sub">Name and quantity are the essentials — everything else is optional.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Card name *</div>
+        <input type="text" id="f_name" placeholder="e.g. Pidgey">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Set name</div>
+        <input type="text" id="f_set" placeholder="e.g. Scarlet & Violet Base">
+      </div>
+      <div class="form-row2">
+        <div class="form-group">
+          <div class="form-label">Rarity</div>
+          <select id="f_rarity">
+            <option value="Common">Common</option>
+            <option value="Uncommon">Uncommon</option>
+            <option value="Rare">Rare</option>
+            <option value="Holo">Holo Rare</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Card #</div>
+          <input type="text" id="f_num" placeholder="e.g. 016/198">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Card image URL</div>
+        <input type="url" id="f_img" placeholder="Paste image link">
+      </div>
+      <div class="form-row2">
+        <div class="form-group">
+          <div class="form-label">Quantity</div>
+          <input type="number" id="f_qty" value="1" min="0" step="1">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Market price ea. (SGD)</div>
+          <input type="number" id="f_price" placeholder="0.00" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Notes</div>
+        <input type="text" id="f_notes" placeholder="e.g. NM condition, bulk lot">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay()">Cancel</button>
+      <button class="confirm" onclick="saveCard()">Save card</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'bulk_card_tracker_v1';
+let cards = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || [];
+let currentFilter = 'all';
+let editId = null;
+let currentView = 'list';
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+
+// ── View switching ─────────────────────────────────────────────────────
+function switchView(v){
+  currentView = v;
+  document.getElementById('listView').style.display = v === 'list' ? 'block' : 'none';
+  document.getElementById('binderView').style.display = v === 'binder' ? 'block' : 'none';
+  document.getElementById('tabList').classList.toggle('active', v === 'list');
+  document.getElementById('tabList2').classList.toggle('active', v === 'list');
+  document.getElementById('tabBinder').classList.toggle('active', v === 'binder');
+  document.getElementById('tabBinder2').classList.toggle('active', v === 'binder');
+  document.querySelector('.fab-add').style.display = v === 'list' ? 'flex' : 'none';
+  if (v === 'binder') renderBinder();
+}
+
+function uid(){ return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2000);
+}
+
+function setFilter(el, f){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = f;
+  render();
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────
+function renderStats(){
+  const totalEntries = cards.length;
+  const totalQty = cards.reduce((s,c)=>s+(Number(c.qty)||0),0);
+  const totalValue = cards.reduce((s,c)=>s+(Number(c.qty)||0)*(Number(c.price)||0),0);
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="lbl">Unique cards</div><div class="val">${totalEntries}</div></div>
+    <div class="stat"><div class="lbl">Total quantity</div><div class="val">${totalQty}</div></div>
+    <div class="stat"><div class="lbl">Est. market value</div><div class="val accent">S$${totalValue.toFixed(2)}</div></div>
+  `;
+}
+
+// ── List render ────────────────────────────────────────────────────────
+function render(){
+  renderStats();
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const sortBy = document.getElementById('sortSel').value;
+
+  let filtered = cards.filter(c=>{
+    if (currentFilter !== 'all' && c.rarity !== currentFilter) return false;
+    if (q){
+      const hay = [c.name, c.set, c.num].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a,b)=>{
+    if (sortBy === 'name') return (a.name||'').localeCompare(b.name||'');
+    if (sortBy === 'set') return (a.set||'').localeCompare(b.set||'');
+    if (sortBy === 'qty') return (Number(b.qty)||0) - (Number(a.qty)||0);
+    if (sortBy === 'price') return (Number(b.price)||0) - (Number(a.price)||0);
+    if (sortBy === 'value') return ((Number(b.qty)||0)*(Number(b.price)||0)) - ((Number(a.qty)||0)*(Number(a.price)||0));
+    return 0;
+  });
+
+  const list = document.getElementById('cardList');
+  if (!filtered.length){
+    list.innerHTML = `<div class="empty"><i class="ti ti-cards-off"></i><p>No cards found. Tap the + button to add one.</p></div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(c=>{
+    const qty = Number(c.qty)||0;
+    const price = Number(c.price)||0;
+    const subtotal = qty*price;
+    const thumb = c.img
+      ? `<img src="${escAttr(c.img)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-photo-off\\'></i>'">`
+      : `<i class="ti ti-photo-off"></i>`;
+    return `
+      <div class="row" data-id="${c.id}">
+        <div class="thumb">${thumb}</div>
+        <div class="row-info">
+          <div class="row-name">${escHtml(c.name)}</div>
+          <div class="row-meta">
+            ${c.set ? `<span class="row-set">${escHtml(c.set)}${c.num ? ' · '+escHtml(c.num) : ''}</span>` : (c.num ? `<span class="row-set">${escHtml(c.num)}</span>` : '')}
+            <span class="rtag r-${c.rarity}">${c.rarity}</span>
+          </div>
+        </div>
+        <div class="qty-stepper">
+          <button onclick="stepQty('${c.id}',-1)" title="Decrease">−</button>
+          <input type="number" min="0" value="${qty}" onchange="updateField('${c.id}','qty',this.value)">
+          <button onclick="stepQty('${c.id}',1)" title="Increase">+</button>
+        </div>
+        <div class="price-field">
+          <span>S$</span>
+          <input type="number" min="0" step="0.01" value="${price ? price.toFixed(2) : ''}" placeholder="0.00" onchange="updateField('${c.id}','price',this.value)">
+        </div>
+        <div class="subtotal">S$${subtotal.toFixed(2)}</div>
+        <div class="row-actions">
+          <button onclick="openEdit('${c.id}')" title="Edit"><i class="ti ti-pencil"></i></button>
+          <button class="f-del" onclick="deleteCard('${c.id}')" title="Delete"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function escHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function escAttr(s){ return escHtml(s); }
+
+function stepQty(id, delta){
+  const c = cards.find(x=>x.id===id);
+  if (!c) return;
+  c.qty = Math.max(0, (Number(c.qty)||0) + delta);
+  save();
+  render();
+}
+
+function updateField(id, field, value){
+  const c = cards.find(x=>x.id===id);
+  if (!c) return;
+  if (field==='qty') c.qty = Math.max(0, parseInt(value)||0);
+  if (field==='price') c.price = Math.max(0, parseFloat(value)||0);
+  save();
+  render();
+}
+
+function deleteCard(id){
+  if (!confirm('Delete this card entry?')) return;
+  cards = cards.filter(c=>c.id!==id);
+  save();
+  render();
+  toast('Card deleted');
+}
+
+// ── Add / Edit modal ──────────────────────────────────────────────────
+function openAdd(){
+  editId = null;
+  document.getElementById('addTitle').textContent = 'Add card';
+  ['f_name','f_set','f_num','f_img','f_notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f_rarity').value = 'Common';
+  document.getElementById('f_qty').value = 1;
+  document.getElementById('f_price').value = '';
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function openEdit(id){
+  const c = cards.find(x=>x.id===id);
+  if (!c) return;
+  editId = id;
+  document.getElementById('addTitle').textContent = 'Edit card';
+  document.getElementById('f_name').value = c.name||'';
+  document.getElementById('f_set').value = c.set||'';
+  document.getElementById('f_num').value = c.num||'';
+  document.getElementById('f_img').value = c.img||'';
+  document.getElementById('f_rarity').value = c.rarity||'Common';
+  document.getElementById('f_qty').value = c.qty||0;
+  document.getElementById('f_price').value = c.price||'';
+  document.getElementById('f_notes').value = c.notes||'';
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function closeOverlay(){
+  document.getElementById('addOverlay').style.display = 'none';
+}
+
+function saveCard(){
+  const name = document.getElementById('f_name').value.trim();
+  if (!name){ toast('Card name is required'); return; }
+  const data = {
+    name,
+    set: document.getElementById('f_set').value.trim(),
+    num: document.getElementById('f_num').value.trim(),
+    img: document.getElementById('f_img').value.trim(),
+    rarity: document.getElementById('f_rarity').value,
+    qty: Math.max(0, parseInt(document.getElementById('f_qty').value)||0),
+    price: Math.max(0, parseFloat(document.getElementById('f_price').value)||0),
+    notes: document.getElementById('f_notes').value.trim()
+  };
+  if (editId){
+    const c = cards.find(x=>x.id===editId);
+    Object.assign(c, data);
+    toast('Card updated');
+  } else {
+    cards.push({ id: uid(), ...data });
+    toast('Card added');
+  }
+  save();
+  closeOverlay();
+  render();
+}
+
+// ── CSV export/import ──────────────────────────────────────────────────
+function csvEscape(v){
+  v = String(v==null?'':v);
+  if (/[",\n]/.test(v)) return '"' + v.replace(/"/g,'""') + '"';
+  return v;
+}
+
+function exportCSV(){
+  const headers = ['name','set','num','rarity','qty','price','img','notes'];
+  const rows = [headers.join(',')];
+  cards.forEach(c=>{
+    rows.push(headers.map(h=>csvEscape(c[h])).join(','));
+  });
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'bulk-card-tracker.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported CSV');
+}
+
+function triggerImport(){
+  document.getElementById('csvFileInput').click();
+}
+
+function parseCSVLine(line){
+  const out = [];
+  let cur = '', inQuotes = false;
+  for (let i=0;i<line.length;i++){
+    const ch = line[i];
+    if (inQuotes){
+      if (ch === '"'){
+        if (line[i+1] === '"'){ cur += '"'; i++; }
+        else inQuotes = false;
+      } else cur += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ','){ out.push(cur); cur=''; }
+      else cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+function importCSV(evt){
+  const file = evt.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const text = e.target.result.replace(/\r/g,'');
+    const lines = text.split('\n').filter(l=>l.trim().length);
+    if (!lines.length){ toast('Empty file'); return; }
+    const headers = parseCSVLine(lines[0]).map(h=>h.trim().toLowerCase());
+    let added = 0;
+    for (let i=1;i<lines.length;i++){
+      const vals = parseCSVLine(lines[i]);
+      const row = {};
+      headers.forEach((h,idx)=> row[h] = vals[idx] !== undefined ? vals[idx].trim() : '');
+      if (!row.name) continue;
+      cards.push({
+        id: uid(),
+        name: row.name,
+        set: row.set||'',
+        num: row.num||'',
+        rarity: ['Common','Uncommon','Rare','Holo','Other'].includes(row.rarity) ? row.rarity : 'Common',
+        qty: Math.max(0, parseInt(row.qty)||0),
+        price: Math.max(0, parseFloat(row.price)||0),
+        img: row.img||'',
+        notes: row.notes||''
+      });
+      added++;
+    }
+    save();
+    render();
+    toast(`Imported ${added} card${added!==1?'s':''}`);
+    evt.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ── Binder state ───────────────────────────────────────────────────────
+const SLOTS_PER_PAGE = 9; // 3×3
+let binderSpread = 0;
+let binderCards  = [];
+const flipped = new Set();
+
+function renderBinder(){
+  const filter = document.getElementById('binderFilter').value;
+  flipped.clear();
+  binderCards = cards
+    .filter(c => filter === 'all' ? true : c.rarity === filter)
+    .sort((a, b) => (a.name||'').localeCompare(b.name||''));
+  binderSpread = 0;
+  drawSpread();
+}
+
+function isMobile(){ return window.innerWidth <= 1024; }
+
+function drawSpread(){
+  if (isMobile()){
+    document.getElementById('binderBook').style.display = 'none';
+    document.getElementById('binderMobilePage').style.display = 'flex';
+    document.getElementById('binderGridMobile').innerHTML = buildSlots(binderCards, 0);
+    document.getElementById('binderCounter').textContent =
+      `${binderCards.length} card${binderCards.length !== 1 ? 's' : ''}`;
+    document.getElementById('binderPageInfo').textContent = '';
+    document.getElementById('binderPrev').disabled = true;
+    document.getElementById('binderNext').disabled = true;
+    return;
+  }
+
+  document.getElementById('binderBook').style.display = 'flex';
+  document.getElementById('binderMobilePage').style.display = 'none';
+
+  const perSpread    = SLOTS_PER_PAGE * 2; // 18
+  const totalSpreads = Math.max(1, Math.ceil(binderCards.length / perSpread));
+
+  if (binderSpread >= totalSpreads) binderSpread = totalSpreads - 1;
+  if (binderSpread < 0)             binderSpread = 0;
+
+  const leftStart  = binderSpread * perSpread;
+  const rightStart = leftStart + SLOTS_PER_PAGE;
+  const leftSlice  = binderCards.slice(leftStart,  leftStart  + SLOTS_PER_PAGE);
+  const rightSlice = binderCards.slice(rightStart, rightStart + SLOTS_PER_PAGE);
+
+  const leftPageNum  = binderSpread * 2 + 1;
+  const rightPageNum = binderSpread * 2 + 2;
+
+  document.getElementById('binderLabelLeft').textContent  = `Page ${leftPageNum}`;
+  document.getElementById('binderLabelRight').textContent = `Page ${rightPageNum}`;
+  document.getElementById('binderGridLeft').innerHTML     = buildSlots(leftSlice,  leftStart);
+  document.getElementById('binderGridRight').innerHTML    = buildSlots(rightSlice, rightStart);
+
+  document.getElementById('binderCounter').textContent =
+    `${binderCards.length} card${binderCards.length !== 1 ? 's' : ''} · ${totalSpreads * 2} page${totalSpreads !== 1 ? 's' : ''}`;
+  document.getElementById('binderPageInfo').textContent =
+    `Pages ${leftPageNum}–${rightPageNum} of ${totalSpreads * 2}`;
+
+  document.getElementById('binderPrev').disabled = binderSpread === 0;
+  document.getElementById('binderNext').disabled = binderSpread >= totalSpreads - 1;
+}
+
+function buildSlots(slice, startIdx){
+  if (!slice.length){
+    return `<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:13px;padding:2rem">No cards here</div>`;
+  }
+  return slice.map((c, i) => {
+    const globalIdx = startIdx + i;
+    const qty   = Number(c.qty)||0;
+    const price = Number(c.price)||0;
+    const dotCls = 'rd-' + (c.rarity || 'Other');
+
+    const front = `
+      <div class="bslot-front">
+        ${c.img
+          ? `<img src="${escAttr(c.img)}" alt="${escAttr(c.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="no-art" style="${c.img ? 'display:none' : 'display:flex'}">
+          <i class="ti ti-photo-off"></i>
+          <span>${escHtml(c.name)}</span>
+        </div>
+        <div class="qty-badge" title="Quantity">×${qty}</div>
+        <div class="rarity-dot ${dotCls}" title="${c.rarity}"></div>
+      </div>`;
+
+    const back = `
+      <div class="bslot-back">
+        <div class="bback-name">${escHtml(c.name)}</div>
+        ${c.set ? `<div class="bback-set">${escHtml(c.set)}${c.num ? ' · '+escHtml(c.num) : ''}</div>` : ''}
+        <div class="bback-divider"></div>
+        <div class="bback-row"><span class="bback-lbl">Qty</span><span class="bback-val">${qty}</span></div>
+        <div class="bback-row"><span class="bback-lbl">Price ea.</span><span class="bback-val">S$${price.toFixed(2)}</span></div>
+        <div class="bback-row"><span class="bback-lbl">Subtotal</span><span class="bback-val">S$${(qty*price).toFixed(2)}</span></div>
+      </div>`;
+
+    return `
+      <div class="bslot" id="bslot-${globalIdx}" onclick="flipSlot(${globalIdx})" title="${escAttr(c.name)}">
+        <div class="bslot-inner">
+          ${front}
+          ${back}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function flipSlot(idx){
+  const el = document.getElementById(`bslot-${idx}`);
+  if (!el) return;
+  if (flipped.has(idx)){ flipped.delete(idx); el.classList.remove('flipped'); }
+  else { flipped.add(idx); el.classList.add('flipped'); }
+}
+
+function binderPrevSpread(){ if (binderSpread > 0){ binderSpread--; flipped.clear(); drawSpread(); } }
+function binderNextSpread(){ binderSpread++; flipped.clear(); drawSpread(); }
+
+window.addEventListener('resize', () => { if (currentView === 'binder') drawSpread(); });
+
+// ── Init ───────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
