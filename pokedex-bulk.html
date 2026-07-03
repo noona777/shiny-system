@@ -76,14 +76,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .row-info{flex:1;min-width:0}
 .row-name{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-alt{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
 .row-meta{display:flex;align-items:center;gap:6px;margin-top:2px;flex-wrap:wrap}
 .row-set{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
 .rtag{font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px;white-space:nowrap}
 .r-Common{background:var(--surface1);color:var(--text2);border:1px solid var(--border2)}
 .r-Uncommon{background:var(--success-bg);color:var(--success);border:1px solid var(--success)}
 .r-Rare{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
-.r-Holo{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}
-.r-Other{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.r-DoubleRare{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border)}
+.ttag{font-size:9.5px;font-weight:500;padding:1px 7px;border-radius:20px;white-space:nowrap;background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
 
 .qty-stepper{display:flex;align-items:center;gap:4px;flex-shrink:0}
 .qty-stepper button{width:24px;height:24px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;font-family:inherit}
@@ -128,6 +129,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .form-label{font-size:11px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
 .form-group{display:grid;gap:3px}
+.checkbox-group{display:grid;gap:6px;background:var(--surface1);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 10px}
+.checkbox-row{display:flex;align-items:center;gap:8px}
+.checkbox-row input{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.checkbox-row label{font-size:13px;color:var(--text);cursor:pointer}
 .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
 .modal-footer button{padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface1);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
 .modal-footer .confirm{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:500}
@@ -181,7 +186,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .bslot-front .no-art span{font-size:9px;color:rgba(255,255,255,.18);text-align:center;padding:0 4px}
 .bslot-front .qty-badge{position:absolute;top:5px;right:5px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;border:1px solid rgba(255,255,255,.25)}
 .bslot-front .rarity-dot{position:absolute;bottom:5px;left:5px;width:9px;height:9px;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,.5)}
-.rd-Common{background:#9a9a9a}.rd-Uncommon{background:#10b981}.rd-Rare{background:#3b82f6}.rd-Holo{background:#a78bfa}.rd-Other{background:#f0b429}
+.rd-Common{background:#9a9a9a}.rd-Uncommon{background:#10b981}.rd-Rare{background:#3b82f6}.rd-DoubleRare{background:#a78bfa}
 
 .bslot-back{background:linear-gradient(145deg,#1a2a3a,#0d1520);transform:rotateY(180deg);border:1.5px solid rgba(255,255,255,.12);padding:8px;display:flex;flex-direction:column;gap:3px;justify-content:center}
 .bback-name{font-size:11px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:1px}
@@ -220,7 +225,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="view-tab" id="tabBinder" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
     </div>
     <div class="search-row">
-      <input type="text" id="searchInput" placeholder="Name or set..." oninput="render()">
+      <input type="text" id="searchInput" placeholder="Name (EN/JP/CN) or set..." oninput="render()">
       <select id="rarityFilterSel" onchange="render()" style="display:none"></select>
     </div>
     <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i><span class="btn-label"> Export</span></button>
@@ -232,11 +237,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <div class="filter-bar">
     <button class="pill active" data-f="all" onclick="setFilter(this,'all')">All</button>
-    <button class="pill" data-f="Common" onclick="setFilter(this,'Common')">Common</button>
-    <button class="pill" data-f="Uncommon" onclick="setFilter(this,'Uncommon')">Uncommon</button>
-    <button class="pill" data-f="Rare" onclick="setFilter(this,'Rare')">Rare</button>
-    <button class="pill" data-f="Holo" onclick="setFilter(this,'Holo')">Holo</button>
-    <button class="pill" data-f="Other" onclick="setFilter(this,'Other')">Other</button>
+    <button class="pill" data-f="Common" onclick="setFilter(this,'Common')">● Common</button>
+    <button class="pill" data-f="Uncommon" onclick="setFilter(this,'Uncommon')">◆ Uncommon</button>
+    <button class="pill" data-f="Rare" onclick="setFilter(this,'Rare')">★ Rare</button>
+    <button class="pill" data-f="DoubleRare" onclick="setFilter(this,'DoubleRare')">★★ Double Rare</button>
     <div class="spacer"></div>
     <select class="sort-select" id="sortSel" onchange="render()">
       <option value="name">Sort: Name</option>
@@ -260,11 +264,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
     <select id="binderFilter" onchange="renderBinder()" style="height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none">
       <option value="all">All cards</option>
-      <option value="Common">Common only</option>
-      <option value="Uncommon">Uncommon only</option>
-      <option value="Rare">Rare only</option>
-      <option value="Holo">Holo only</option>
-      <option value="Other">Other only</option>
+      <option value="Common">● Common only</option>
+      <option value="Uncommon">◆ Uncommon only</option>
+      <option value="Rare">★ Rare only</option>
+      <option value="DoubleRare">★★ Double Rare only</option>
     </select>
     <span class="binder-counter" id="binderCounter"></span>
   </div>
@@ -303,11 +306,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div class="overlay" id="addOverlay" style="display:none">
   <div class="modal">
     <h3 id="addTitle">Add card</h3>
-    <p class="sub">Name and quantity are the essentials — everything else is optional.</p>
+    <p class="sub">English name and quantity are the essentials — everything else is optional.</p>
     <div class="form-grid">
       <div class="form-group">
-        <div class="form-label">Card name *</div>
-        <input type="text" id="f_name" placeholder="e.g. Pidgey">
+        <div class="form-label">English name *</div>
+        <input type="text" id="f_en" placeholder="e.g. Pidgey">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Japanese name</div>
+        <input type="text" id="f_jp" placeholder="e.g. ポッポ">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Chinese name</div>
+        <input type="text" id="f_sc" placeholder="e.g. 波波">
       </div>
       <div class="form-group">
         <div class="form-label">Set name</div>
@@ -317,16 +328,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="form-group">
           <div class="form-label">Rarity</div>
           <select id="f_rarity">
-            <option value="Common">Common</option>
-            <option value="Uncommon">Uncommon</option>
-            <option value="Rare">Rare</option>
-            <option value="Holo">Holo Rare</option>
-            <option value="Other">Other</option>
+            <option value="Common">● Common (C)</option>
+            <option value="Uncommon">◆ Uncommon (U)</option>
+            <option value="Rare">★ Rare (R)</option>
+            <option value="DoubleRare">★★ Double Rare (RR)</option>
           </select>
         </div>
         <div class="form-group">
           <div class="form-label">Card #</div>
           <input type="text" id="f_num" placeholder="e.g. 016/198">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Treatment / finish</div>
+        <div class="checkbox-group">
+          <div class="checkbox-row"><input type="checkbox" id="f_holo"><label for="f_holo">Holo</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="f_reverseHolo"><label for="f_reverseHolo">Reverse Holo</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="f_pokeballReverseHolo"><label for="f_pokeballReverseHolo">Poké Ball Reverse Holo</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="f_masterballReverseHolo"><label for="f_masterballReverseHolo">Master Ball Reverse Holo</label></div>
         </div>
       </div>
       <div class="form-group">
@@ -363,6 +382,20 @@ let currentFilter = 'all';
 let editId = null;
 let currentView = 'list';
 function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+
+const RARITY_INFO = {
+  Common:    { code:'C',  symbol:'●',  label:'Common' },
+  Uncommon:  { code:'U',  symbol:'◆',  label:'Uncommon' },
+  Rare:      { code:'R',  symbol:'★',  label:'Rare' },
+  DoubleRare:{ code:'RR', symbol:'★★', label:'Double Rare' }
+};
+const TREATMENTS = [
+  { key:'holo',                    label:'Holo' },
+  { key:'reverseHolo',             label:'Reverse Holo' },
+  { key:'pokeballReverseHolo',     label:'Poké Ball Reverse Holo' },
+  { key:'masterballReverseHolo',   label:'Master Ball Reverse Holo' }
+];
+function activeTreatments(c){ return TREATMENTS.filter(t => c[t.key]); }
 
 // ── View switching ─────────────────────────────────────────────────────
 function switchView(v){
@@ -414,14 +447,14 @@ function render(){
   let filtered = cards.filter(c=>{
     if (currentFilter !== 'all' && c.rarity !== currentFilter) return false;
     if (q){
-      const hay = [c.name, c.set, c.num].join(' ').toLowerCase();
+      const hay = [c.en, c.jp, c.sc, c.set, c.num].join(' ').toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
   });
 
   filtered.sort((a,b)=>{
-    if (sortBy === 'name') return (a.name||'').localeCompare(b.name||'');
+    if (sortBy === 'name') return (a.en||'').localeCompare(b.en||'');
     if (sortBy === 'set') return (a.set||'').localeCompare(b.set||'');
     if (sortBy === 'qty') return (Number(b.qty)||0) - (Number(a.qty)||0);
     if (sortBy === 'price') return (Number(b.price)||0) - (Number(a.price)||0);
@@ -442,14 +475,19 @@ function render(){
     const thumb = c.img
       ? `<img src="${escAttr(c.img)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<i class=\\'ti ti-photo-off\\'></i>'">`
       : `<i class="ti ti-photo-off"></i>`;
+    const rInfo = RARITY_INFO[c.rarity] || RARITY_INFO.Common;
+    const altNames = [c.jp, c.sc].filter(Boolean).join(' · ');
+    const treatBadges = activeTreatments(c).map(t=>`<span class="ttag">${t.label}</span>`).join('');
     return `
       <div class="row" data-id="${c.id}">
         <div class="thumb">${thumb}</div>
         <div class="row-info">
-          <div class="row-name">${escHtml(c.name)}</div>
+          <div class="row-name">${escHtml(c.en)}</div>
+          ${altNames ? `<div class="row-alt">${escHtml(altNames)}</div>` : ''}
           <div class="row-meta">
             ${c.set ? `<span class="row-set">${escHtml(c.set)}${c.num ? ' · '+escHtml(c.num) : ''}</span>` : (c.num ? `<span class="row-set">${escHtml(c.num)}</span>` : '')}
-            <span class="rtag r-${c.rarity}">${c.rarity}</span>
+            <span class="rtag r-${c.rarity}">${rInfo.symbol} ${rInfo.code}</span>
+            ${treatBadges}
           </div>
         </div>
         <div class="qty-stepper">
@@ -502,10 +540,11 @@ function deleteCard(id){
 function openAdd(){
   editId = null;
   document.getElementById('addTitle').textContent = 'Add card';
-  ['f_name','f_set','f_num','f_img','f_notes'].forEach(id=>document.getElementById(id).value='');
+  ['f_en','f_jp','f_sc','f_set','f_num','f_img','f_notes'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f_rarity').value = 'Common';
   document.getElementById('f_qty').value = 1;
   document.getElementById('f_price').value = '';
+  TREATMENTS.forEach(t=>document.getElementById('f_'+t.key).checked = false);
   document.getElementById('addOverlay').style.display = 'flex';
 }
 
@@ -514,7 +553,9 @@ function openEdit(id){
   if (!c) return;
   editId = id;
   document.getElementById('addTitle').textContent = 'Edit card';
-  document.getElementById('f_name').value = c.name||'';
+  document.getElementById('f_en').value = c.en||'';
+  document.getElementById('f_jp').value = c.jp||'';
+  document.getElementById('f_sc').value = c.sc||'';
   document.getElementById('f_set').value = c.set||'';
   document.getElementById('f_num').value = c.num||'';
   document.getElementById('f_img').value = c.img||'';
@@ -522,6 +563,7 @@ function openEdit(id){
   document.getElementById('f_qty').value = c.qty||0;
   document.getElementById('f_price').value = c.price||'';
   document.getElementById('f_notes').value = c.notes||'';
+  TREATMENTS.forEach(t=>document.getElementById('f_'+t.key).checked = !!c[t.key]);
   document.getElementById('addOverlay').style.display = 'flex';
 }
 
@@ -530,10 +572,12 @@ function closeOverlay(){
 }
 
 function saveCard(){
-  const name = document.getElementById('f_name').value.trim();
-  if (!name){ toast('Card name is required'); return; }
+  const en = document.getElementById('f_en').value.trim();
+  if (!en){ toast('English name is required'); return; }
   const data = {
-    name,
+    en,
+    jp: document.getElementById('f_jp').value.trim(),
+    sc: document.getElementById('f_sc').value.trim(),
     set: document.getElementById('f_set').value.trim(),
     num: document.getElementById('f_num').value.trim(),
     img: document.getElementById('f_img').value.trim(),
@@ -542,6 +586,7 @@ function saveCard(){
     price: Math.max(0, parseFloat(document.getElementById('f_price').value)||0),
     notes: document.getElementById('f_notes').value.trim()
   };
+  TREATMENTS.forEach(t=> data[t.key] = document.getElementById('f_'+t.key).checked);
   if (editId){
     const c = cards.find(x=>x.id===editId);
     Object.assign(c, data);
@@ -563,10 +608,10 @@ function csvEscape(v){
 }
 
 function exportCSV(){
-  const headers = ['name','set','num','rarity','qty','price','img','notes'];
+  const headers = ['en','jp','sc','set','num','rarity','holo','reverseHolo','pokeballReverseHolo','masterballReverseHolo','qty','price','img','notes'];
   const rows = [headers.join(',')];
   cards.forEach(c=>{
-    rows.push(headers.map(h=>csvEscape(c[h])).join(','));
+    rows.push(headers.map(h=>csvEscape(typeof c[h]==='boolean' ? (c[h]?'TRUE':'FALSE') : c[h])).join(','));
   });
   const blob = new Blob([rows.join('\n')], {type:'text/csv'});
   const url = URL.createObjectURL(blob);
@@ -616,13 +661,20 @@ function importCSV(evt){
       const vals = parseCSVLine(lines[i]);
       const row = {};
       headers.forEach((h,idx)=> row[h] = vals[idx] !== undefined ? vals[idx].trim() : '');
-      if (!row.name) continue;
+      if (!row.en) continue;
+      const boolVal = v => ['true','1','yes'].includes((v||'').toLowerCase());
       cards.push({
         id: uid(),
-        name: row.name,
+        en: row.en,
+        jp: row.jp||'',
+        sc: row.sc||'',
         set: row.set||'',
         num: row.num||'',
-        rarity: ['Common','Uncommon','Rare','Holo','Other'].includes(row.rarity) ? row.rarity : 'Common',
+        rarity: Object.keys(RARITY_INFO).includes(row.rarity) ? row.rarity : 'Common',
+        holo: boolVal(row.holo),
+        reverseHolo: boolVal(row.reverseholo),
+        pokeballReverseHolo: boolVal(row.pokeballreverseholo),
+        masterballReverseHolo: boolVal(row.masterballreverseholo),
         qty: Math.max(0, parseInt(row.qty)||0),
         price: Math.max(0, parseFloat(row.price)||0),
         img: row.img||'',
@@ -649,7 +701,7 @@ function renderBinder(){
   flipped.clear();
   binderCards = cards
     .filter(c => filter === 'all' ? true : c.rarity === filter)
-    .sort((a, b) => (a.name||'').localeCompare(b.name||''));
+    .sort((a, b) => (a.en||'').localeCompare(b.en||''));
   binderSpread = 0;
   drawSpread();
 }
@@ -708,33 +760,39 @@ function buildSlots(slice, startIdx){
     const globalIdx = startIdx + i;
     const qty   = Number(c.qty)||0;
     const price = Number(c.price)||0;
-    const dotCls = 'rd-' + (c.rarity || 'Other');
+    const rInfo = RARITY_INFO[c.rarity] || RARITY_INFO.Common;
+    const dotCls = 'rd-' + (c.rarity || 'Common');
+    const altNames = [c.jp, c.sc].filter(Boolean).join(' · ');
+    const treatList = activeTreatments(c).map(t=>t.label).join(', ');
 
     const front = `
       <div class="bslot-front">
         ${c.img
-          ? `<img src="${escAttr(c.img)}" alt="${escAttr(c.name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          ? `<img src="${escAttr(c.img)}" alt="${escAttr(c.en)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
           : ''}
         <div class="no-art" style="${c.img ? 'display:none' : 'display:flex'}">
           <i class="ti ti-photo-off"></i>
-          <span>${escHtml(c.name)}</span>
+          <span>${escHtml(c.en)}</span>
         </div>
         <div class="qty-badge" title="Quantity">×${qty}</div>
-        <div class="rarity-dot ${dotCls}" title="${c.rarity}"></div>
+        <div class="rarity-dot ${dotCls}" title="${rInfo.label}"></div>
       </div>`;
 
     const back = `
       <div class="bslot-back">
-        <div class="bback-name">${escHtml(c.name)}</div>
+        <div class="bback-name">${escHtml(c.en)}</div>
+        ${altNames ? `<div class="bback-set">${escHtml(altNames)}</div>` : ''}
         ${c.set ? `<div class="bback-set">${escHtml(c.set)}${c.num ? ' · '+escHtml(c.num) : ''}</div>` : ''}
         <div class="bback-divider"></div>
+        <div class="bback-row"><span class="bback-lbl">Rarity</span><span class="bback-val">${rInfo.symbol} ${rInfo.code}</span></div>
         <div class="bback-row"><span class="bback-lbl">Qty</span><span class="bback-val">${qty}</span></div>
         <div class="bback-row"><span class="bback-lbl">Price ea.</span><span class="bback-val">S$${price.toFixed(2)}</span></div>
         <div class="bback-row"><span class="bback-lbl">Subtotal</span><span class="bback-val">S$${(qty*price).toFixed(2)}</span></div>
+        ${treatList ? `<div class="bback-set" style="margin-top:2px">${escHtml(treatList)}</div>` : ''}
       </div>`;
 
     return `
-      <div class="bslot" id="bslot-${globalIdx}" onclick="flipSlot(${globalIdx})" title="${escAttr(c.name)}">
+      <div class="bslot" id="bslot-${globalIdx}" onclick="flipSlot(${globalIdx})" title="${escAttr(c.en)}">
         <div class="bslot-inner">
           ${front}
           ${back}
