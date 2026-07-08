@@ -284,17 +284,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── Themes (showcase collections) ── */
 #themesView{display:none}
-.theme-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
-.theme-list{display:flex;flex-direction:column;gap:8px}
-.theme-list-row{display:flex;align-items:center;gap:12px;padding:.6rem .75rem;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);cursor:pointer}
-.theme-list-row:hover{border-color:var(--border2);background:var(--surface1)}
-.theme-row-swatch{width:44px;height:44px;border-radius:8px;flex-shrink:0;background-size:cover;background-position:center}
-.theme-row-info{flex:1;min-width:0}
-.theme-row-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.theme-row-meta{font-size:12px;color:var(--text3);margin-top:1px}
-.theme-row-actions{display:flex;gap:6px;flex-shrink:0}
-.theme-row-actions button{width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
-.theme-row-actions button:hover{background:var(--surface1);color:var(--text)}
+
+/* Sidebar + main split — pick a collection on the left, detail loads on the right */
+.theme-shell{display:flex;gap:16px;align-items:flex-start}
+.theme-sidebar{width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:.75rem}
+.theme-sidebar-add{width:100%;justify-content:center}
+.theme-sidebar-list{display:flex;flex-direction:column;gap:5px;max-height:70vh;overflow-y:auto}
+.theme-sidebar-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent}
+.theme-sidebar-row:hover{background:var(--surface1)}
+.theme-sidebar-row.active{background:var(--accent-bg);border-color:var(--accent-border)}
+.theme-sidebar-swatch{width:28px;height:28px;border-radius:6px;flex-shrink:0;background-size:cover;background-position:center}
+.theme-sidebar-info{flex:1;min-width:0}
+.theme-sidebar-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-sidebar-row.active .theme-sidebar-name{color:var(--accent)}
+.theme-sidebar-count{font-size:11px;color:var(--text3)}
+.theme-main{flex:1;min-width:0}
+
+@media(max-width:1024px){
+  .theme-shell{flex-direction:column}
+  .theme-sidebar{width:100%;flex-direction:column-reverse}
+  .theme-sidebar-list{flex-direction:row;overflow-x:auto;overflow-y:visible;max-height:none;gap:8px;padding-bottom:4px}
+  .theme-sidebar-row{flex:0 0 auto;min-width:150px}
+}
 
 .theme-detail-banner{border-radius:var(--radius-lg);background-size:cover;background-position:center;background-color:var(--surface1);position:relative;min-height:140px;display:flex;align-items:flex-end;margin-bottom:1rem;border:1px solid var(--border)}
 .theme-detail-banner .scrim{position:absolute;inset:0;border-radius:var(--radius-lg);background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,0) 65%)}
@@ -302,8 +313,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .theme-detail-title{font-size:20px;font-weight:700;color:#fff}
 .theme-detail-count{font-size:12px;color:rgba(255,255,255,.8)}
 .theme-detail-actions{display:flex;gap:8px;margin-bottom:1rem}
-.theme-back{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:.75rem;padding:0}
-.theme-back:hover{color:var(--text)}
 
 .theme-pick-list{max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--radius);padding:6px}
 .theme-pick-row{display:flex;align-items:center;gap:8px;padding:5px 6px;font-size:13px;border-radius:6px;cursor:pointer}
@@ -488,29 +497,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </div>
   </div>
 
-  <!-- Theme list -->
-  <div id="themeListWrap">
-    <div class="theme-toolbar">
-      <button class="btn primary" onclick="openThemeAdd()"><i class="ti ti-plus"></i> New collection</button>
+  <div class="theme-shell">
+    <!-- Sidebar: pick a collection, detail loads on the right -->
+    <div class="theme-sidebar">
+      <button class="btn primary theme-sidebar-add" onclick="openThemeAdd()"><i class="ti ti-plus"></i> New collection</button>
+      <div class="theme-sidebar-list" id="themeSidebarList"></div>
     </div>
-    <div class="theme-list" id="themeGrid"></div>
-  </div>
 
-  <!-- Theme detail -->
-  <div id="themeDetailWrap" style="display:none">
-    <button class="theme-back" onclick="closeThemeDetail()"><i class="ti ti-chevron-left"></i> All collections</button>
-    <div class="theme-detail-banner" id="themeDetailBanner">
-      <div class="scrim"></div>
-      <div class="theme-detail-body">
-        <div class="theme-detail-title" id="themeDetailName"></div>
-        <div class="theme-detail-count" id="themeDetailCount"></div>
+    <!-- Main: selected collection's detail -->
+    <div class="theme-main">
+      <div class="empty" id="themeMainEmpty">
+        <i class="ti ti-sparkles"></i>
+        <p id="themeMainEmptyText">No themed collections yet — create one to get started.</p>
+      </div>
+
+      <div id="themeMainContent" style="display:none">
+        <div class="theme-detail-banner" id="themeDetailBanner">
+          <div class="scrim"></div>
+          <div class="theme-detail-body">
+            <div class="theme-detail-title" id="themeDetailName"></div>
+            <div class="theme-detail-count" id="themeDetailCount"></div>
+          </div>
+        </div>
+        <div class="theme-detail-actions">
+          <button class="btn" onclick="openThemeEdit(activeThemeId)"><i class="ti ti-edit"></i> Edit collection</button>
+          <button class="btn danger-soft" onclick="deleteTheme(activeThemeId)"><i class="ti ti-trash"></i> Delete</button>
+        </div>
+        <div class="grid" id="themeDetailGrid"></div>
       </div>
     </div>
-    <div class="theme-detail-actions">
-      <button class="btn" onclick="openThemeEdit(activeThemeId)"><i class="ti ti-edit"></i> Edit collection</button>
-      <button class="btn danger-soft" onclick="deleteTheme(activeThemeId)"><i class="ti ti-trash"></i> Delete</button>
-    </div>
-    <div class="grid" id="themeDetailGrid"></div>
   </div>
 
 </div>
@@ -1319,41 +1334,43 @@ let themePickOrder = []; // ordered card ids selected in the modal — order = l
 let selectedThemeLayout = 'grid';
 let selectedThemeCoverStyle = null; // null = auto-assigned by theme id
 
+// Entry point when switching into the Themes tab. Keeps whatever collection
+// was already selected if it still exists, otherwise defaults to the first one.
 function renderThemes() {
-  document.getElementById('themeListWrap').style.display = 'block';
-  document.getElementById('themeDetailWrap').style.display = 'none';
-  activeThemeId = null;
+  if (!themes.find(t => t.id === activeThemeId)) {
+    activeThemeId = themes.length ? themes[0].id : null;
+  }
+  renderThemeSidebar();
+  renderThemeMain();
+}
 
+function renderThemeSidebar() {
+  const el = document.getElementById('themeSidebarList');
   if (!themes.length) {
-    document.getElementById('themeGrid').innerHTML = `
-      <div class="empty">
-        <i class="ti ti-sparkles"></i>
-        <p>No themed collections yet — group cards into a showcase like a full series.</p>
-      </div>`;
+    el.innerHTML = '';
     return;
   }
-
-  document.getElementById('themeGrid').innerHTML = themes.map(t => {
+  el.innerHTML = themes.map(t => {
     const count = t.cardIds.length;
-    const layoutLabel = THEME_LAYOUTS[t.layout || 'grid'].label;
     // Swatch uses the theme's own custom bg photo if set (already loaded for the detail
     // view anyway), otherwise a pure-CSS gradient — never fetches extra card images just
-    // to render the list.
-    const hasBg = !!t.bg;
-    const swatchBg = hasBg ? `url('${t.bg}')` : themeCoverBg(t);
+    // to render the sidebar.
+    const swatchBg = t.bg ? `url('${t.bg}')` : themeCoverBg(t);
     return `
-    <div class="theme-list-row" onclick="openThemeDetail(${t.id})">
-      <div class="theme-row-swatch" style="background-image:${swatchBg}"></div>
-      <div class="theme-row-info">
-        <div class="theme-row-name">${t.name}</div>
-        <div class="theme-row-meta">${count} card${count !== 1 ? 's' : ''} · ${layoutLabel}</div>
-      </div>
-      <div class="theme-row-actions" onclick="event.stopPropagation()">
-        <button onclick="openThemeEdit(${t.id})" title="Edit"><i class="ti ti-edit"></i></button>
-        <button onclick="deleteTheme(${t.id})" title="Delete"><i class="ti ti-trash"></i></button>
+    <div class="theme-sidebar-row ${t.id === activeThemeId ? 'active' : ''}" onclick="selectTheme(${t.id})">
+      <div class="theme-sidebar-swatch" style="background-image:${swatchBg}"></div>
+      <div class="theme-sidebar-info">
+        <div class="theme-sidebar-name">${t.name}</div>
+        <div class="theme-sidebar-count">${count} card${count !== 1 ? 's' : ''}</div>
       </div>
     </div>`;
   }).join('');
+}
+
+function selectTheme(id) {
+  activeThemeId = id;
+  renderThemeSidebar();
+  renderThemeMain();
 }
 
 function themeSlotHTML(c, roleClass) {
@@ -1368,12 +1385,21 @@ function themeSlotHTML(c, roleClass) {
     </div>`;
 }
 
-function openThemeDetail(id) {
-  activeThemeId = id;
-  const t = themes.find(x => x.id === id);
-  if (!t) return;
-  document.getElementById('themeListWrap').style.display = 'none';
-  document.getElementById('themeDetailWrap').style.display = 'block';
+function renderThemeMain() {
+  const t = themes.find(x => x.id === activeThemeId);
+  const empty = document.getElementById('themeMainEmpty');
+  const content = document.getElementById('themeMainContent');
+
+  if (!t) {
+    document.getElementById('themeMainEmptyText').textContent = themes.length
+      ? 'Select a collection from the sidebar.'
+      : 'No themed collections yet — create one to get started.';
+    empty.style.display = '';
+    content.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  content.style.display = 'block';
 
   const layout = t.layout || 'grid';
   const layoutCfg = THEME_LAYOUTS[layout];
@@ -1426,8 +1452,6 @@ function openThemeDetail(id) {
     wrap.innerHTML = Array.from({ length: slotCount }, (_, i) => themeSlotHTML(memberCards[i])).join('');
   }
 }
-
-function closeThemeDetail() { renderThemes(); }
 
 function renderThemeLayoutPicker() {
   document.getElementById('themeLayoutPicker').innerHTML = Object.entries(THEME_LAYOUTS).map(([key, cfg]) => `
@@ -1595,8 +1619,7 @@ function saveTheme() {
   saveThemes();
   closeOverlay('themeOverlay');
   toast(editThemeId ? 'Collection updated' : `${name} created!`);
-  if (activeThemeId === id) openThemeDetail(id);
-  else renderThemes();
+  selectTheme(id);
 }
 
 function deleteTheme(id) {
@@ -1605,6 +1628,7 @@ function deleteTheme(id) {
   if (!confirm(`Delete the "${t.name}" collection? Cards themselves won't be removed.`)) return;
   themes = themes.filter(x => x.id !== id);
   saveThemes();
+  if (activeThemeId === id) activeThemeId = null;
   renderThemes();
   toast('Collection deleted');
 }
