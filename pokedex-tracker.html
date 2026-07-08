@@ -654,6 +654,17 @@ let editThemeId = null;
 let activeThemeId = null;
 const today = () => new Date().toISOString().slice(0,10);
 
+// Stable per-card identifier that survives CSV export/import (numeric ids get
+// regenerated on every import). Used to match cards for theme membership.
+function generateUid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+// Backfill uid on any cards saved before this existed.
+let uidBackfilled = false;
+cards.forEach(c => { if (!c.uid) { c.uid = generateUid(); uidBackfilled = true; } });
+if (uidBackfilled) localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
 function saveThemes() { localStorage.setItem(THEMES_KEY, JSON.stringify(themes)); }
 
@@ -879,8 +890,10 @@ function saveCard() {
     return;
   }
   const id = editId || (Math.max(0, ...cards.map(c => c.id)) + 1);
+  const existing = editId ? cards.find(c => c.id === editId) : null;
   const card = {
     id,
+    uid: existing ? existing.uid : generateUid(),
     dex: document.getElementById('f_dex').value.trim() || '???',
     en,
     jp: document.getElementById('f_jp').value.trim(),
@@ -902,12 +915,20 @@ function saveCard() {
 }
 
 // ── CSV Export ─────────────────────────────────────────────────────────
+// Key used to match a card across export/import round-trips. Prefers the
+// stable uid (survives numeric id regeneration on every import); falls back
+// to a natural key for cards/CSVs from before uid existed.
+function cardKey(c) {
+  if (c.uid) return 'uid::' + c.uid;
+  return [c.dex || '', c.en || '', c.set || ''].join('::').toLowerCase();
+}
+
 function exportCSV() {
   if (!cards.length) { toast('No cards to export'); return; }
-  const headers = ['Dex#','English','Japanese','Chinese','Rarity','Set','Status','My Cost (SGD)','Source','Date Acquired','Image URL','Notes'];
+  const headers = ['Card ID','Dex#','English','Japanese','Chinese','Rarity','Set','Status','My Cost (SGD)','Source','Date Acquired','Image URL','Notes'];
   const rows = cards.map(c => {
     return [
-      c.dex, c.en, c.jp, c.sc, c.rarity, c.set, c.status,
+      c.uid, c.dex, c.en, c.jp, c.sc, c.rarity, c.set, c.status,
       c.cost != null ? c.cost.toFixed(2) : '',
       c.source || '',
       c.date || '',
@@ -915,7 +936,22 @@ function exportCSV() {
       c.notes
     ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
   });
-  const csv = [headers.join(','), ...rows].join('\n');
+  let csv = [headers.join(','), ...rows].join('\n');
+
+  if (themes.length) {
+    const themeHeaders = ['Name', 'Layout', 'Cover Style', 'Background URL', 'Cards'];
+    const themeRows = themes.map(t => {
+      const cardRefs = t.cardIds
+        .map(id => cards.find(c => c.id === id))
+        .filter(Boolean)
+        .map(cardKey)
+        .join('|');
+      return [t.name, t.layout || 'grid', t.coverStyle || '', t.bg || '', cardRefs]
+        .map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(',');
+    });
+    csv += '\n\n# COLLECTIONS\n' + [themeHeaders.join(','), ...themeRows].join('\n');
+  }
+
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -938,8 +974,8 @@ function importCSV(event) {
   const reader = new FileReader();
   reader.onload = function(e) {
     const text = e.target.result;
-    const lines = text.split(/\r?\n/).filter(l => l.trim());
-    if (lines.length < 2) { toast('CSV is empty or has no data rows'); return; }
+    const allLines = text.split(/\r?\n/).filter(l => l.trim());
+    if (allLines.length < 2) { toast('CSV is empty or has no data rows'); return; }
 
     // Parse a CSV line respecting quoted fields
     function parseLine(line) {
@@ -958,6 +994,12 @@ function importCSV(event) {
       return result;
     }
 
+    // A "# COLLECTIONS" marker line (written by exportCSV) splits the card
+    // table from an optional themed-collections table below it.
+    const markerIdx = allLines.findIndex(l => l.trim().toUpperCase() === '# COLLECTIONS');
+    const lines = markerIdx === -1 ? allLines : allLines.slice(0, markerIdx);
+    const themeLines = markerIdx === -1 ? null : allLines.slice(markerIdx + 1);
+
     const headers = parseLine(lines[0]).map(h => h.toLowerCase());
     // Map header names to field keys
     const col = (names) => {
@@ -967,6 +1009,7 @@ function importCSV(event) {
       }
       return -1;
     };
+    const iUid    = col(['card id']);
     const iDex    = col(['dex']);
     const iEn     = col(['english']);
     const iJp     = col(['japanese']);
@@ -1001,8 +1044,10 @@ function importCSV(event) {
 
       const costVal = iCost !== -1 ? parseFloat(row[iCost]) : NaN;
 
+      const uidFromFile = (iUid !== -1 ? row[iUid] : '').trim();
       const card = {
         id:      nextId(),
+        uid:     uidFromFile || generateUid(),
         dex:     (iDex !== -1 ? row[iDex] : '???').trim() || '???',
         en,
         jp:      (iJp  !== -1 ? row[iJp]  : '').trim(),
@@ -1020,8 +1065,51 @@ function importCSV(event) {
       added++;
     }
 
+    let themesImported = 0;
+    if (themeLines && themeLines.length > 1) {
+      const keyToId = {};
+      cards.forEach(c => { keyToId[cardKey(c)] = c.id; });
+
+      const tHeaders = parseLine(themeLines[0]).map(h => h.toLowerCase());
+      const tCol = (names) => {
+        for (const n of names) {
+          const idx = tHeaders.findIndex(h => h.includes(n));
+          if (idx !== -1) return idx;
+        }
+        return -1;
+      };
+      const iName        = tCol(['name']);
+      const iLayout       = tCol(['layout']);
+      const iCoverStyle   = tCol(['cover']);
+      const iBg           = tCol(['background']);
+      const iCardRefs     = tCol(['cards']);
+
+      if (iName !== -1) {
+        const newThemes = [];
+        let nextThemeId = 1;
+        for (let i = 1; i < themeLines.length; i++) {
+          const row = parseLine(themeLines[i]);
+          const name = (iName !== -1 ? row[iName] : '').trim();
+          if (!name) continue;
+          const refs = (iCardRefs !== -1 ? row[iCardRefs] : '').split('|').map(s => s.trim()).filter(Boolean);
+          const cardIds = refs.map(k => keyToId[k]).filter(id => id !== undefined);
+          newThemes.push({
+            id: nextThemeId++,
+            name,
+            bg: (iBg !== -1 ? row[iBg] : '').trim(),
+            coverStyle: (iCoverStyle !== -1 ? row[iCoverStyle] : '').trim() || null,
+            layout: (iLayout !== -1 ? row[iLayout] : '').trim() || 'grid',
+            cardIds,
+          });
+          themesImported++;
+        }
+        themes = newThemes;
+        saveThemes();
+      }
+    }
+
     save(); render();
-    toast(`Imported ${added} card${added !== 1 ? 's' : ''}${skipped ? ` (${skipped} skipped)` : ''}`);
+    toast(`Imported ${added} card${added !== 1 ? 's' : ''}${themesImported ? ` and ${themesImported} collection${themesImported !== 1 ? 's' : ''}` : ''}${skipped ? ` (${skipped} skipped)` : ''}`);
   };
   reader.readAsText(file);
 }
