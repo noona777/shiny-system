@@ -20,6 +20,11 @@
   --wish:#534AB7;--wish-bg:#EEEDFE;--wish-border:#AFA9EC;
   --gold:#C9A84C;
   --radius:8px;--radius-lg:12px;
+  --r-ur-bg:#FDF3D0;--r-ur-text:#7A4800;--r-ur-border:#E8A800;
+  --r-sar-bg:#EEEDFE;--r-sar-text:#26215C;--r-sar-border:#7F77DD;
+  --r-ar-bg:#E1F5EE;--r-ar-text:#085041;--r-ar-border:#1D9E75;
+  --r-rr-bg:#EFF6FF;--r-rr-text:#1e3a5f;--r-rr-border:#93C5FD;
+  --r-promo-bg:#FDE8F5;--r-promo-text:#7B1D5E;--r-promo-border:#D966B0;
 }
 @media(prefers-color-scheme:dark){
   :root{
@@ -29,6 +34,11 @@
     --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-border:#1d4ed8;
     --success:#10b981;--danger:#ef4444;--danger-bg:#450a0a;
     --wish:#7F77DD;--wish-bg:#26215C;--wish-border:#534AB7;
+    --r-ur-bg:#4a3a0a;--r-ur-text:#F5D77A;--r-ur-border:#C9A84C;
+    --r-sar-bg:#2b285e;--r-sar-text:#C9C6F5;--r-sar-border:#8f86e0;
+    --r-ar-bg:#0d3328;--r-ar-text:#6fe0c0;--r-ar-border:#1D9E75;
+    --r-rr-bg:#1e3a5f;--r-rr-text:#a8c8f0;--r-rr-border:#5b9bf0;
+    --r-promo-bg:#4a1a3a;--r-promo-text:#f0a8d8;--r-promo-border:#D966B0;
   }
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
@@ -42,6 +52,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* Search */
 .search-row{display:flex;gap:8px;flex:1;min-width:180px}
+.topbar-actions{display:flex;gap:8px;flex-shrink:0}
 .search-row input,.search-row select{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none}
 .search-row input{flex:1}
 .search-row input:focus,.search-row select:focus{border-color:var(--accent)}
@@ -63,6 +74,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stat .val.wish{color:var(--wish)}
 .stat .val.gain{color:var(--success)}
 .stat .val.loss{color:var(--danger)}
+.stat .val .stat-of{font-size:12px;font-weight:400;color:var(--text3);margin-left:3px}
 
 /* Filter bar */
 .filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
@@ -81,19 +93,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .card{background:var(--surface);border-radius:var(--radius-lg);border:1.5px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
 .card:hover{border-color:var(--border2)}
 .card.wishlist{border:2px solid var(--wish)}
+#themeDetailGrid.grid .card.wishlist .card-img-wrap img{filter:grayscale(1) brightness(.85)}
 
 .card-img-wrap{position:relative;height:130px;background:var(--surface1);display:flex;align-items:center;justify-content:center}
 .card-img-wrap img{width:100%;height:100%;object-fit:contain;padding:8px}
 .no-img-icon{font-size:36px;color:var(--text3)}
 .wish-badge{position:absolute;top:7px;right:7px;background:var(--wish-bg);color:var(--wish);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--wish-border);display:flex;align-items:center;gap:3px}
 .rarity-tag{position:absolute;bottom:6px;left:7px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
-.r-UR{background:#FDF3D0;color:#7A4800;border:1px solid #E8A800}
-.r-SAR{background:#EEEDFE;color:#26215C;border:1px solid #7F77DD}
-.r-AR{background:#E1F5EE;color:#085041;border:1px solid #1D9E75}
-.r-RR{background:#EFF6FF;color:#1e3a5f;border:1px solid #93C5FD}
-.r-Promo{background:#FDE8F5;color:#7B1D5E;border:1px solid #D966B0}
+.r-UR{background:var(--r-ur-bg);color:var(--r-ur-text);border:1px solid var(--r-ur-border)}
+.r-SAR{background:var(--r-sar-bg);color:var(--r-sar-text);border:1px solid var(--r-sar-border)}
+.r-AR{background:var(--r-ar-bg);color:var(--r-ar-text);border:1px solid var(--r-ar-border)}
+.r-RR{background:var(--r-rr-bg);color:var(--r-rr-text);border:1px solid var(--r-rr-border)}
+.r-Promo{background:var(--r-promo-bg);color:var(--r-promo-text);border:1px solid var(--r-promo-border)}
 .r-Custom{background:var(--surface1);color:var(--text2);border:1px solid var(--border2)}
-.card.placeholder{border:2px dashed #F59E42;}
 
 .card-body{padding:.75rem;flex:1}
 .dex-num{font-size:11px;color:var(--text3);margin-bottom:2px}
@@ -138,6 +150,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
 .empty i{font-size:40px;display:block;margin-bottom:10px}
 .empty p{font-size:14px}
+.binder-empty{text-align:center;padding:3rem 1rem;color:rgba(255,255,255,.3);display:flex;flex-direction:column;align-items:center;gap:8px}
+.binder-empty i{font-size:36px}
+.binder-empty p{font-size:13px}
 
 /* Toast */
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;padding:8px 18px;border-radius:20px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
@@ -194,24 +209,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .binder-spine::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 14px,rgba(0,0,0,.2) 14px,rgba(0,0,0,.2) 15px)}
 .binder-spine::after{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:2px;height:100%;background:rgba(0,0,0,.3)}
 /* Each page takes exactly half the available width minus spine */
-.binder-page{flex:1 1 0;min-width:0;max-width:calc(50% - 14px);background:#1a261a;padding:16px 12px;display:flex;flex-direction:column;position:relative;overflow:hidden}
-.binder-page-left{background:linear-gradient(to right,#162016,#1e2a1e);border-radius:16px 0 0 16px}
+.binder-page{flex:1 1 0;min-width:0;max-width:calc(50% - 14px);background:linear-gradient(to right,#162016,#1e2a1e);padding:16px 12px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.binder-page-left{border-radius:16px 0 0 16px}
 .binder-page-right{background:linear-gradient(to left,#162016,#1e2a1e);border-radius:0 16px 16px 0}
-.binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 40px,rgba(255,255,255,.012) 40px,rgba(255,255,255,.012) 41px);pointer-events:none}
+.binder-page::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(to bottom,transparent,transparent 40px,rgba(255,255,255,.03) 40px,rgba(255,255,255,.03) 41px);pointer-events:none}
 .binder-page-label{font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-bottom:8px;letter-spacing:.1em;text-transform:uppercase;font-weight:500}
 
 /* 3×3 grid — columns fill the page, rows auto-size to card aspect ratio */
 .binder-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,auto);gap:8px;width:100%}
 
-/* ── Binder card slot ── */
-.bslot{aspect-ratio:2.5/3.5;border-radius:6px;cursor:pointer;position:relative;perspective:800px;-webkit-perspective:800px}
-.bslot-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);border-radius:6px;will-change:transform}
-.bslot.flipped .bslot-inner{transform:rotateY(180deg)}
-.bslot-front,.bslot-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6px;overflow:hidden;transform:translateZ(0);-webkit-transform:translateZ(0)}
+/* ── Binder card slot ──
+   True 3D flip (perspective/preserve-3d/backface-visibility) is gated to
+   pointer:fine only. Applying it to every slot at all times forces each
+   card onto its own permanent GPU compositing layer — on iOS Safari this
+   causes a black flash/flicker on scroll as layers get recomposited.
+   Touch devices get a plain opacity crossfade instead. */
+.bslot{aspect-ratio:2.5/3.5;border-radius:6px;cursor:pointer;position:relative}
+.bslot-inner{width:100%;height:100%;position:relative;border-radius:6px}
+.bslot-front,.bslot-back{position:absolute;inset:0;border-radius:6px;overflow:hidden;transition:opacity .25s ease}
+.bslot-back{opacity:0;pointer-events:none}
+.bslot.flipped .bslot-front{opacity:0;pointer-events:none}
+.bslot.flipped .bslot-back{opacity:1;pointer-events:auto}
+
+@media(pointer:fine){
+  .bslot{perspective:800px;-webkit-perspective:800px}
+  .bslot-inner{transform-style:preserve-3d;-webkit-transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1);will-change:transform}
+  .bslot.flipped .bslot-inner{transform:rotateY(180deg)}
+  .bslot-front,.bslot-back{backface-visibility:hidden;-webkit-backface-visibility:hidden;transform:translateZ(0);-webkit-transform:translateZ(0);opacity:1;pointer-events:auto}
+  .bslot-back{transform:rotateY(180deg);-webkit-transform:rotateY(180deg)}
+  .bslot.flipped .bslot-front{opacity:1;pointer-events:auto}
+}
 
 /* Front — artwork */
 .bslot-front{background:#0a140a;border:1.5px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 12px rgba(0,0,0,.4)}
 .bslot-front img{width:100%;height:100%;object-fit:cover;display:block;border-radius:5px}
+.bslot.wishlist .bslot-front img{filter:grayscale(1) brightness(.8)}
+.bslot.wishlist .bslot-front::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.15);border-radius:5px;pointer-events:none}
 .bslot-front .no-art{font-size:22px;color:rgba(255,255,255,.18);display:flex;flex-direction:column;align-items:center;gap:4px}
 .bslot-front .no-art span{font-size:10px;color:rgba(255,255,255,.18)}
 .bslot-front .wish-dot{position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:50%;background:var(--wish);border:1.5px solid rgba(255,255,255,.4);box-shadow:0 0 4px var(--wish)}
@@ -219,7 +252,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .rd-UR{background:#E8A800}.rd-SAR{background:#7F77DD}.rd-AR{background:#1D9E75}.rd-RR{background:#93C5FD}.rd-Promo{background:#D966B0}.rd-Custom{background:#888}
 
 /* Back — details */
-.bslot-back{background:linear-gradient(145deg,#1a2a3a,#0d1520);transform:rotateY(180deg);border:1.5px solid rgba(255,255,255,.12);padding:8px;display:flex;flex-direction:column;gap:3px;justify-content:center}
+.bslot-back{background:linear-gradient(145deg,#1a2a3a,#0d1520);border:1.5px solid rgba(255,255,255,.12);padding:8px;display:flex;flex-direction:column;gap:3px;justify-content:center}
 .bback-name{font-size:11px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:1px}
 .bback-alt{font-size:8px;color:rgba(255,255,255,.5);line-height:1.3}
 .bback-set{font-size:8px;color:rgba(255,255,255,.4);line-height:1.3;margin-top:1px}
@@ -248,6 +281,93 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   /* Hide pagination — continuous scroll instead */
   .binder-nav{display:none}
 }
+
+/* ── Themes (showcase collections) ── */
+#themesView{display:none}
+.theme-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
+.theme-list{display:flex;flex-direction:column;gap:8px}
+.theme-list-row{display:flex;align-items:center;gap:12px;padding:.6rem .75rem;border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);cursor:pointer}
+.theme-list-row:hover{border-color:var(--border2);background:var(--surface1)}
+.theme-row-swatch{width:44px;height:44px;border-radius:8px;flex-shrink:0;background-size:cover;background-position:center}
+.theme-row-info{flex:1;min-width:0}
+.theme-row-name{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-row-meta{font-size:12px;color:var(--text3);margin-top:1px}
+.theme-row-actions{display:flex;gap:6px;flex-shrink:0}
+.theme-row-actions button{width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px}
+.theme-row-actions button:hover{background:var(--surface1);color:var(--text)}
+
+.theme-detail-banner{border-radius:var(--radius-lg);background-size:cover;background-position:center;background-color:var(--surface1);position:relative;min-height:140px;display:flex;align-items:flex-end;margin-bottom:1rem;border:1px solid var(--border)}
+.theme-detail-banner .scrim{position:absolute;inset:0;border-radius:var(--radius-lg);background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,0) 65%)}
+.theme-detail-body{position:relative;padding:1rem;width:100%}
+.theme-detail-title{font-size:20px;font-weight:700;color:#fff}
+.theme-detail-count{font-size:12px;color:rgba(255,255,255,.8)}
+.theme-detail-actions{display:flex;gap:8px;margin-bottom:1rem}
+.theme-back{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);background:none;border:none;cursor:pointer;font-family:inherit;margin-bottom:.75rem;padding:0}
+.theme-back:hover{color:var(--text)}
+
+.theme-pick-list{max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--radius);padding:6px}
+.theme-pick-row{display:flex;align-items:center;gap:8px;padding:5px 6px;font-size:13px;border-radius:6px;cursor:pointer}
+.theme-pick-row:hover{background:var(--surface1)}
+.theme-pick-row.picked{background:var(--accent-bg)}
+.theme-pick-row i.ti-check{color:var(--accent)}
+.theme-pick-row i.ti-plus{color:var(--text3)}
+.theme-pick-thumb{width:32px;height:44px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--surface1);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px}
+.theme-pick-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.theme-pick-info{flex:1;min-width:0}
+.theme-pick-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-pick-meta{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-pick-search{margin-bottom:6px}
+
+/* Layout picker */
+.theme-layout-picker{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.theme-layout-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;font-size:10px}
+.theme-layout-btn i{font-size:16px}
+.theme-layout-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.theme-layout-btn:hover:not(.active){background:var(--surface1)}
+
+/* Cover gradient picker */
+.theme-gradient-picker{display:flex;flex-wrap:wrap;gap:8px}
+.theme-gradient-swatch{width:32px;height:32px;border-radius:50%;border:2px solid transparent;cursor:pointer;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.theme-gradient-swatch.active{border-color:var(--text)}
+.theme-gradient-swatch.auto{background:var(--surface1);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:13px;border:1px dashed var(--border2)}
+
+/* Selected cards (ordered chips) */
+.theme-selected-list{display:flex;flex-direction:column;gap:6px;max-height:170px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--radius);padding:6px}
+.theme-chip{display:flex;align-items:center;gap:8px;padding:6px 4px;border-radius:6px;background:var(--surface1)}
+.theme-chip-thumb{width:30px;height:42px;border-radius:4px;overflow:hidden;flex-shrink:0;background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px}
+.theme-chip-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.theme-chip-info{flex:1;min-width:0}
+.theme-chip-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-chip-meta{font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.theme-chip-actions{display:flex;gap:2px;flex-shrink:0}
+.theme-chip-actions button{width:22px;height:22px;border:none;background:transparent;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:4px;font-size:11px}
+.theme-chip-actions button:hover:not(:disabled){background:var(--border);color:var(--text)}
+.theme-chip-actions button:disabled{opacity:.3;cursor:not-allowed}
+
+/* Showcase layouts (art-only, sit on the collection's custom background) */
+.theme-showcase{background-size:cover;background-position:center;border-radius:var(--radius-lg);padding:2rem 1.25rem;background-color:var(--surface1)}
+.theme-slot{border-radius:10px;overflow:hidden;box-shadow:0 10px 26px rgba(0,0,0,.35);background:#fff;aspect-ratio:2.5/3.5;position:relative}
+.theme-slot img{width:100%;height:100%;object-fit:cover;display:block}
+.theme-slot.wishlist img{filter:grayscale(1) brightness(.85)}
+.theme-slot.wishlist::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.15);border-radius:10px;pointer-events:none}
+.theme-slot.empty{background:rgba(128,128,128,.12);border:2px dashed rgba(128,128,128,.4);box-shadow:none;display:flex;align-items:center;justify-content:center}
+.theme-slot .no-art{color:rgba(128,128,128,.8);font-size:22px;display:flex;align-items:center;justify-content:center;height:100%}
+
+.theme-layout-vertical{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:240px;margin:0 auto}
+.theme-layout-horizontal{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
+.theme-layout-horizontal .theme-slot{width:160px;flex:0 0 auto}
+.theme-layout-square4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:420px;margin:0 auto}
+.theme-layout-square9{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:560px;margin:0 auto}
+.theme-layout-diamond{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,auto);
+  grid-template-areas:". top ." "left center right" ". bottom .";
+  gap:14px;max-width:520px;margin:0 auto;align-items:center;
+}
+.theme-layout-diamond .slot-center{grid-area:center;transform:scale(1.18);z-index:2;box-shadow:0 14px 40px rgba(0,0,0,.45)}
+.theme-layout-diamond .slot-top{grid-area:top}
+.theme-layout-diamond .slot-right{grid-area:right}
+.theme-layout-diamond .slot-bottom{grid-area:bottom}
+.theme-layout-diamond .slot-left{grid-area:left}
 </style>
 </head>
 <body>
@@ -264,6 +384,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="view-tabs">
       <button class="view-tab active" id="tabCollection" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
       <button class="view-tab" id="tabBinder" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+      <button class="view-tab" id="tabThemes" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
     </div>
     <div class="search-row">
       <input type="text" id="searchInput" placeholder="Name, # or set..." oninput="render()">
@@ -277,9 +398,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <option value="Custom">Custom</option>
       </select>
     </div>
-    <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i><span class="btn-label"> Export</span></button>
-    <button class="btn" onclick="triggerImport()" title="Import from CSV"><i class="ti ti-upload"></i><span class="btn-label"> Import</span></button>
-    <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+    <div class="topbar-actions">
+      <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i><span class="btn-label"> Export</span></button>
+      <button class="btn" onclick="triggerImport()" title="Import from CSV"><i class="ti ti-upload"></i><span class="btn-label"> Import</span></button>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+    </div>
   </div>
 
   <!-- Stats -->
@@ -313,6 +436,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="view-tabs">
       <button class="view-tab" id="tabCollection2" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
       <button class="view-tab active" id="tabBinder2" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+      <button class="view-tab" id="tabThemes2" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
     </div>
     <select id="binderFilter" onchange="renderBinder()" style="height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none">
       <option value="all">All cards</option>
@@ -348,6 +472,49 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 
 </div>
+
+<!-- ══ THEMES VIEW ══════════════════════════════════════════════════════ -->
+<div id="themesView" class="app" style="display:none">
+
+  <div class="topbar" style="margin-bottom:1rem">
+    <div class="logo">
+      <div class="pokeball"></div>
+      Pokédex Tracker
+    </div>
+    <div class="view-tabs">
+      <button class="view-tab" id="tabCollection3" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
+      <button class="view-tab" id="tabBinder3" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+      <button class="view-tab active" id="tabThemes3" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
+    </div>
+  </div>
+
+  <!-- Theme list -->
+  <div id="themeListWrap">
+    <div class="theme-toolbar">
+      <button class="btn primary" onclick="openThemeAdd()"><i class="ti ti-plus"></i> New collection</button>
+    </div>
+    <div class="theme-list" id="themeGrid"></div>
+  </div>
+
+  <!-- Theme detail -->
+  <div id="themeDetailWrap" style="display:none">
+    <button class="theme-back" onclick="closeThemeDetail()"><i class="ti ti-chevron-left"></i> All collections</button>
+    <div class="theme-detail-banner" id="themeDetailBanner">
+      <div class="scrim"></div>
+      <div class="theme-detail-body">
+        <div class="theme-detail-title" id="themeDetailName"></div>
+        <div class="theme-detail-count" id="themeDetailCount"></div>
+      </div>
+    </div>
+    <div class="theme-detail-actions">
+      <button class="btn" onclick="openThemeEdit(activeThemeId)"><i class="ti ti-edit"></i> Edit collection</button>
+      <button class="btn danger-soft" onclick="deleteTheme(activeThemeId)"><i class="ti ti-trash"></i> Delete</button>
+    </div>
+    <div class="grid" id="themeDetailGrid"></div>
+  </div>
+
+</div>
+
 <div class="toast" id="toast"></div>
 
 <button class="fab-add" onclick="openAdd()" title="Add card" aria-label="Add card">
@@ -404,10 +571,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="wishlist">Wishlist</option>
         </select>
       </div>
-      <div class="form-group" style="flex-direction:row;align-items:center;gap:8px;display:flex">
-        <input type="checkbox" id="f_placeholder" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent)">
-        <label for="f_placeholder" style="font-size:13px;color:var(--text2);cursor:pointer">Placeholder (slot reserved, card not yet in hand)</label>
-      </div>
       <div id="purchaseSection">
         <div class="form-grid">
           <div class="form-group">
@@ -439,16 +602,60 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- Add / Edit theme modal -->
+<div class="overlay" id="themeOverlay" style="display:none">
+  <div class="modal" style="max-width:440px">
+    <h3 id="themeTitle">New collection</h3>
+    <p class="sub">Group cards into a themed showcase, like a full series set.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Collection name *</div>
+        <input type="text" id="t_name" placeholder="e.g. Kanto Starters">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Background image URL (optional)</div>
+        <input type="url" id="t_bg" placeholder="Paste a background image link">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Cover gradient (used when no background image)</div>
+        <div class="theme-gradient-picker" id="themeGradientPicker"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Layout</div>
+        <div class="theme-layout-picker" id="themeLayoutPicker"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Selected cards (<span id="themeSelectedCount">0</span>)</div>
+        <div class="theme-selected-list" id="themeSelectedList"></div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Add cards</div>
+        <input type="text" class="theme-pick-search" id="t_search" placeholder="Filter by name, # or set..." oninput="renderThemePickList()">
+        <div class="theme-pick-list" id="themePickList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('themeOverlay')">Cancel</button>
+      <button class="confirm" onclick="saveTheme()">Save collection</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── State ──────────────────────────────────────────────────────────────
 const STORAGE_KEY = 'pdex_v1';
+const THEMES_KEY = 'pdex_themes_v1';
 let cards = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || [];
+let themes = JSON.parse(localStorage.getItem(THEMES_KEY) || 'null') || [];
 let pricesHidden = true;
 let currentFilter = 'all';
 let editId = null;
+let editThemeId = null;
+let activeThemeId = null;
 const today = () => new Date().toISOString().slice(0,10);
 
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(cards)); }
+function saveThemes() { localStorage.setItem(THEMES_KEY, JSON.stringify(themes)); }
 
 // ── Toast ──────────────────────────────────────────────────────────────
 function toast(msg) {
@@ -479,10 +686,36 @@ function renderStats() {
   const wishlist = cards.filter(c => c.status === 'wishlist');
   const totalCost = owned.reduce((s, c) => s + (c.cost || 0), 0);
 
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const rar = document.getElementById('rarityFilter').value;
+  const isFiltered = !!q || !!rar;
+
+  let ownedVal = owned.length;
+  let wishVal = wishlist.length;
+  let costVal = totalCost;
+  let costLbl = 'Total cost';
+
+  if (isFiltered) {
+    const matches = c => {
+      if (rar && c.rarity !== rar) return false;
+      if (q) {
+        const haystack = [c.en, c.jp, c.sc, c.dex, c.set].join(' ').toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
+      return true;
+    };
+    const matchedOwned = owned.filter(matches);
+    const matchedWishlist = wishlist.filter(matches);
+    costVal = matchedOwned.reduce((s, c) => s + (c.cost || 0), 0);
+    costLbl = 'Filtered cost';
+    ownedVal = `${matchedOwned.length}<span class="stat-of">of ${owned.length}</span>`;
+    wishVal = `${matchedWishlist.length}<span class="stat-of">of ${wishlist.length}</span>`;
+  }
+
   document.getElementById('statsRow').innerHTML = `
-    <div class="stat"><div class="lbl">Owned</div><div class="val">${owned.length}</div></div>
-    <div class="stat"><div class="lbl">Wishlist</div><div class="val wish">${wishlist.length}</div></div>
-    <div class="stat"><div class="lbl">Total cost</div><div class="val">${pricesHidden ? '—' : 'S$' + Math.round(totalCost).toLocaleString()}</div></div>
+    <div class="stat"><div class="lbl">Owned</div><div class="val">${ownedVal}</div></div>
+    <div class="stat"><div class="lbl">Wishlist</div><div class="val wish">${wishVal}</div></div>
+    <div class="stat"><div class="lbl">${costLbl}</div><div class="val">${pricesHidden ? '—' : 'S$' + Math.round(costVal).toLocaleString()}</div></div>
   `;
 }
 
@@ -532,14 +765,13 @@ function render() {
     const rarInfo = c.rarity ? (RARITY_MAP[c.rarity] || { cls: 'r-Custom', label: c.rarity }) : null;
 
     return `
-    <div class="card ${isWish ? 'wishlist' : ''} ${c.placeholder ? 'placeholder' : ''}">
+    <div class="card ${isWish ? 'wishlist' : ''}">
       <div class="card-img-wrap">
         ${c.img
           ? `<img src="${c.img}" alt="${c.en} card" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
           : ''}
         <div class="no-img-icon" style="${c.img ? 'display:none' : 'display:flex'}"><i class="ti ti-photo-off"></i></div>
         ${isWish ? `<div class="wish-badge"><i class="ti ti-star" style="font-size:9px"></i> Wishlist</div>` : ''}
-        ${c.placeholder ? `<div class="wish-badge" style="background:#FFF3E0;color:#B45309;border-color:#F59E42;top:${isWish?'30px':'7px'}"><i class="ti ti-clock" style="font-size:9px"></i> Placeholder</div>` : ''}
         ${rarInfo ? `<span class="rarity-tag ${rarInfo.cls}">${rarInfo.label}</span>` : ''}
       </div>
 
@@ -608,7 +840,6 @@ function openAdd() {
   document.getElementById('f_cost').value = '';
   document.getElementById('f_source').value = 'single';
   document.getElementById('f_date').value = today();
-  document.getElementById('f_placeholder').checked = false;
   togglePurchaseSection();
   document.getElementById('addOverlay').style.display = 'flex';
 }
@@ -629,7 +860,6 @@ function openEdit(id) {
   document.getElementById('f_source').value = c.source || 'single';
   document.getElementById('f_date').value = c.date || today();
   document.getElementById('f_notes').value = c.notes || '';
-  document.getElementById('f_placeholder').checked = c.placeholder || false;
   togglePurchaseSection();
   document.getElementById('addOverlay').style.display = 'flex';
 }
@@ -659,7 +889,6 @@ function saveCard() {
     set: document.getElementById('f_set').value.trim(),
     img: document.getElementById('f_img').value.trim(),
     status,
-    placeholder: document.getElementById('f_placeholder').checked,
     cost: status === 'owned' ? (parseFloat(document.getElementById('f_cost').value) || null) : null,
     source: status === 'owned' ? document.getElementById('f_source').value : null,
     date: status === 'owned' ? document.getElementById('f_date').value : null,
@@ -810,15 +1039,20 @@ let currentView = 'collection';
 
 function switchView(view) {
   currentView = view;
-  const isCollection = view === 'collection';
-  document.getElementById('collectionView').style.display = isCollection ? '' : 'none';
-  document.getElementById('binderView').style.display     = isCollection ? 'none' : 'block';
-  // Sync both tab bars
-  document.getElementById('tabCollection').classList.toggle('active',  isCollection);
-  document.getElementById('tabBinder').classList.toggle('active',     !isCollection);
-  document.getElementById('tabCollection2').classList.toggle('active',  isCollection);
-  document.getElementById('tabBinder2').classList.toggle('active',     !isCollection);
-  if (!isCollection) renderBinder();
+  document.getElementById('collectionView').style.display = view === 'collection' ? '' : 'none';
+  document.getElementById('binderView').style.display     = view === 'binder'     ? 'block' : 'none';
+  document.getElementById('themesView').style.display     = view === 'themes'     ? 'block' : 'none';
+  // Sync all three tab bars
+  ['', '2', '3'].forEach(suffix => {
+    const tabCollection = document.getElementById('tabCollection' + suffix);
+    const tabBinder     = document.getElementById('tabBinder' + suffix);
+    const tabThemes     = document.getElementById('tabThemes' + suffix);
+    if (tabCollection) tabCollection.classList.toggle('active', view === 'collection');
+    if (tabBinder)     tabBinder.classList.toggle('active',     view === 'binder');
+    if (tabThemes)     tabThemes.classList.toggle('active',     view === 'themes');
+  });
+  if (view === 'binder') renderBinder();
+  if (view === 'themes') renderThemes();
 }
 
 // ── Binder state ───────────────────────────────────────────────────────
@@ -828,14 +1062,6 @@ let binderCards  = [];
 
 const RARITY_DOT = {
   UR:'rd-UR', SAR:'rd-SAR', AR:'rd-AR', RR:'rd-RR', Promo:'rd-Promo', Custom:'rd-Custom'
-};
-const RARITY_BACK_STYLE = {
-  UR:    'background:#FDF3D0;color:#7A4800',
-  SAR:   'background:#EEEDFE;color:#26215C',
-  AR:    'background:#E1F5EE;color:#085041',
-  RR:    'background:#EFF6FF;color:#1e3a5f',
-  Promo: 'background:#FDE8F5;color:#7B1D5E',
-  Custom:'background:#eee;color:#555',
 };
 
 const flipped = new Set();
@@ -905,13 +1131,16 @@ function drawSpread() {
 
 function buildSlots(slice, startIdx) {
   if (!slice.length) {
-    return `<div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.25);font-size:13px;padding:2rem">No cards here</div>`;
+    return `
+      <div class="binder-empty" style="grid-column:1/-1">
+        <i class="ti ti-cards"></i>
+        <p>No cards here</p>
+      </div>`;
   }
   return slice.map((c, i) => {
     const globalIdx = startIdx + i;
     const isWish    = c.status === 'wishlist';
     const dotCls    = RARITY_DOT[c.rarity] || 'rd-Custom';
-    const backStyle = RARITY_BACK_STYLE[c.rarity] || 'background:#eee;color:#555';
 
     const front = `
       <div class="bslot-front">
@@ -937,7 +1166,7 @@ function buildSlots(slice, startIdx) {
       </div>`;
 
     return `
-      <div class="bslot" id="bslot-${globalIdx}" onclick="flipSlot(${globalIdx})" title="${c.en}">
+      <div class="bslot ${isWish ? 'wishlist' : ''}" id="bslot-${globalIdx}" onclick="flipSlot(${globalIdx})" title="${c.en}">
         <div class="bslot-inner">
           ${front}
           ${back}
@@ -963,6 +1192,334 @@ function binderNextSpread() { binderSpread++; flipped.clear(); drawSpread(); }
 
 // Re-render binder on resize (handles phone rotation / desktop↔mobile)
 window.addEventListener('resize', () => { if (currentView === 'binder') drawSpread(); });
+
+// ── Themes (showcase collections) ───────────────────────────────────────
+const THEME_LAYOUTS = {
+  grid:        { label: 'Freeform grid',  icon: 'ti-layout-grid',    capacity: null, cls: 'grid' },
+  vertical2:   { label: 'Vertical (2)',   icon: 'ti-layout-rows',    capacity: 2,    cls: 'theme-layout-vertical' },
+  vertical3:   { label: 'Vertical (3)',   icon: 'ti-layout-rows',    capacity: 3,    cls: 'theme-layout-vertical' },
+  horizontal2: { label: 'Horizontal (2)', icon: 'ti-layout-columns', capacity: 2,    cls: 'theme-layout-horizontal' },
+  horizontal3: { label: 'Horizontal (3)', icon: 'ti-layout-columns', capacity: 3,    cls: 'theme-layout-horizontal' },
+  square4:     { label: 'Square (2×2)',   icon: 'ti-square',         capacity: 4,    cls: 'theme-layout-square4' },
+  square9:     { label: 'Square (3×3)',   icon: 'ti-grid-3x3',       capacity: 9,    cls: 'theme-layout-square9' },
+  diamond5:    { label: 'Diamond',        icon: 'ti-diamond',        capacity: 5,    cls: 'theme-layout-diamond' },
+};
+const DIAMOND_ROLES = ['center', 'top', 'right', 'bottom', 'left'];
+
+// Pokémon-type-inspired gradients — used as the cover fallback instead of flat grey
+// whenever a collection has no background image set.
+const TYPE_GRADIENTS = {
+  fire:     { label: 'Fire',     css: 'linear-gradient(135deg,#FFEE58,#FF7043,#D32F2F)' },
+  water:    { label: 'Water',    css: 'linear-gradient(135deg,#26C6DA,#1E88E5,#3949AB)' },
+  grass:    { label: 'Grass',    css: 'linear-gradient(135deg,#D4E157,#66BB6A,#00695C)' },
+  electric: { label: 'Electric', css: 'linear-gradient(135deg,#FFF59D,#FFD600,#FF6F00)' },
+  psychic:  { label: 'Psychic',  css: 'linear-gradient(135deg,#F8BBD0,#EC407A,#8E24AA)' },
+  ice:      { label: 'Ice',      css: 'linear-gradient(135deg,#E1F5FE,#4FC3F7,#1565C0)' },
+  dragon:   { label: 'Dragon',   css: 'linear-gradient(135deg,#7E57C2,#5E35B1,#311B92)' },
+  dark:     { label: 'Dark',     css: 'linear-gradient(135deg,#8D6E63,#4E4038,#1C1917)' },
+  fairy:    { label: 'Fairy',    css: 'linear-gradient(135deg,#F8BBD0,#F06292,#AD1457)' },
+  steel:    { label: 'Steel',    css: 'linear-gradient(135deg,#CFD8DC,#78909C,#37474F)' },
+};
+const THEME_GRADIENT_KEYS = Object.keys(TYPE_GRADIENTS);
+function themeCoverBg(t) {
+  if (t.bg) return `url('${t.bg}')`;
+  const key = t.coverStyle && TYPE_GRADIENTS[t.coverStyle] ? t.coverStyle : THEME_GRADIENT_KEYS[t.id % THEME_GRADIENT_KEYS.length];
+  return TYPE_GRADIENTS[key].css;
+}
+
+let themePickOrder = []; // ordered card ids selected in the modal — order = layout position
+let selectedThemeLayout = 'grid';
+let selectedThemeCoverStyle = null; // null = auto-assigned by theme id
+
+function renderThemes() {
+  document.getElementById('themeListWrap').style.display = 'block';
+  document.getElementById('themeDetailWrap').style.display = 'none';
+  activeThemeId = null;
+
+  if (!themes.length) {
+    document.getElementById('themeGrid').innerHTML = `
+      <div class="empty">
+        <i class="ti ti-sparkles"></i>
+        <p>No themed collections yet — group cards into a showcase like a full series.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('themeGrid').innerHTML = themes.map(t => {
+    const count = t.cardIds.length;
+    const layoutLabel = THEME_LAYOUTS[t.layout || 'grid'].label;
+    // Swatch uses the theme's own custom bg photo if set (already loaded for the detail
+    // view anyway), otherwise a pure-CSS gradient — never fetches extra card images just
+    // to render the list.
+    const hasBg = !!t.bg;
+    const swatchBg = hasBg ? `url('${t.bg}')` : themeCoverBg(t);
+    return `
+    <div class="theme-list-row" onclick="openThemeDetail(${t.id})">
+      <div class="theme-row-swatch" style="background-image:${swatchBg}"></div>
+      <div class="theme-row-info">
+        <div class="theme-row-name">${t.name}</div>
+        <div class="theme-row-meta">${count} card${count !== 1 ? 's' : ''} · ${layoutLabel}</div>
+      </div>
+      <div class="theme-row-actions" onclick="event.stopPropagation()">
+        <button onclick="openThemeEdit(${t.id})" title="Edit"><i class="ti ti-edit"></i></button>
+        <button onclick="deleteTheme(${t.id})" title="Delete"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function themeSlotHTML(c, roleClass) {
+  const cls = `theme-slot ${roleClass || ''} ${!c ? 'empty' : ''} ${c && c.status === 'wishlist' ? 'wishlist' : ''}`.trim();
+  if (!c) return `<div class="${cls}"><div class="no-art"><i class="ti ti-photo-off"></i></div></div>`;
+  return `
+    <div class="${cls}" title="${c.en}">
+      ${c.img
+        ? `<img src="${c.img}" alt="${c.en}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        : ''}
+      <div class="no-art" style="${c.img ? 'display:none' : 'flex'}"><i class="ti ti-photo-off"></i></div>
+    </div>`;
+}
+
+function openThemeDetail(id) {
+  activeThemeId = id;
+  const t = themes.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('themeListWrap').style.display = 'none';
+  document.getElementById('themeDetailWrap').style.display = 'block';
+
+  const layout = t.layout || 'grid';
+  const layoutCfg = THEME_LAYOUTS[layout];
+  const isShowcase = layout !== 'grid';
+  const coverBg = themeCoverBg(t);
+
+  const banner = document.getElementById('themeDetailBanner');
+  banner.classList.remove('no-bg');
+  banner.style.backgroundImage = coverBg;
+  document.getElementById('themeDetailName').textContent = t.name;
+  const count = t.cardIds.length;
+  document.getElementById('themeDetailCount').textContent = `${count} card${count !== 1 ? 's' : ''} · ${layoutCfg.label}`;
+
+  const memberCards = t.cardIds.map(cid => cards.find(c => c.id === cid)).filter(Boolean);
+  const wrap = document.getElementById('themeDetailGrid');
+  wrap.className = `${layoutCfg.cls} ${isShowcase ? 'theme-showcase' : ''}`.trim();
+  wrap.style.backgroundImage = isShowcase ? coverBg : '';
+
+  if (!memberCards.length) {
+    wrap.className = 'grid';
+    wrap.style.backgroundImage = '';
+    wrap.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <i class="ti ti-photo-off"></i>
+        <p>No cards assigned yet — edit this collection to add some.</p>
+      </div>`;
+    return;
+  }
+
+  if (layout === 'grid') {
+    wrap.innerHTML = memberCards.map(c => `
+      <div class="card ${c.status === 'wishlist' ? 'wishlist' : ''}">
+        <div class="card-img-wrap">
+          ${c.img
+            ? `<img src="${c.img}" alt="${c.en} card" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+            : ''}
+          <div class="no-img-icon" style="${c.img ? 'display:none' : 'display:flex'}"><i class="ti ti-photo-off"></i></div>
+        </div>
+        <div class="card-body">
+          <div class="dex-num">#${c.dex || '???'}</div>
+          <div class="card-name">${c.en}</div>
+          <div class="card-alt">${[c.jp, c.sc].filter(Boolean).join(' · ') || '—'}</div>
+          <div class="card-set">${c.set || 'Unknown set'}</div>
+        </div>
+      </div>`).join('');
+  } else if (layout === 'diamond5') {
+    wrap.innerHTML = DIAMOND_ROLES.map((role, i) => themeSlotHTML(memberCards[i], `slot-${role}`)).join('');
+  } else {
+    const slotCount = layoutCfg.capacity;
+    wrap.innerHTML = Array.from({ length: slotCount }, (_, i) => themeSlotHTML(memberCards[i])).join('');
+  }
+}
+
+function closeThemeDetail() { renderThemes(); }
+
+function renderThemeLayoutPicker() {
+  document.getElementById('themeLayoutPicker').innerHTML = Object.entries(THEME_LAYOUTS).map(([key, cfg]) => `
+    <button type="button" class="theme-layout-btn ${selectedThemeLayout === key ? 'active' : ''}" onclick="selectThemeLayout('${key}')">
+      <i class="ti ${cfg.icon}"></i>
+      <span>${cfg.label}</span>
+    </button>`).join('');
+}
+
+function selectThemeLayout(key) {
+  selectedThemeLayout = key;
+  const cap = THEME_LAYOUTS[key].capacity;
+  if (cap && themePickOrder.length > cap) {
+    themePickOrder = themePickOrder.slice(0, cap);
+    toast(`Trimmed selection to ${cap} cards for this layout`);
+  }
+  renderThemeLayoutPicker();
+  renderThemeSelectedChips();
+  renderThemePickList();
+}
+
+function renderThemeGradientPicker() {
+  const autoSwatch = `
+    <div class="theme-gradient-swatch auto ${selectedThemeCoverStyle === null ? 'active' : ''}" title="Auto (varies by collection)" onclick="selectThemeGradient(null)">
+      <i class="ti ti-wand"></i>
+    </div>`;
+  const swatches = THEME_GRADIENT_KEYS.map(key => `
+    <div class="theme-gradient-swatch ${selectedThemeCoverStyle === key ? 'active' : ''}" style="background-image:${TYPE_GRADIENTS[key].css}" title="${TYPE_GRADIENTS[key].label}" onclick="selectThemeGradient('${key}')"></div>`).join('');
+  document.getElementById('themeGradientPicker').innerHTML = autoSwatch + swatches;
+}
+
+function selectThemeGradient(key) {
+  selectedThemeCoverStyle = key;
+  renderThemeGradientPicker();
+}
+
+function renderThemeSelectedChips() {
+  document.getElementById('themeSelectedCount').textContent = themePickOrder.length;
+  const el = document.getElementById('themeSelectedList');
+  if (!themePickOrder.length) {
+    el.innerHTML = `<div style="padding:8px;color:var(--text3);font-size:12px">No cards selected yet — pick some below.</div>`;
+    return;
+  }
+  el.innerHTML = themePickOrder.map((id, i) => {
+    const c = cards.find(x => x.id === id);
+    if (!c) return '';
+    return `
+    <div class="theme-chip">
+      <div class="theme-chip-thumb">${c.img ? `<img src="${c.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<i class="ti ti-photo-off"></i>`}</div>
+      <div class="theme-chip-info">
+        <div class="theme-chip-name">#${c.dex || '???'} ${c.en}</div>
+        <div class="theme-chip-meta">${c.set || '—'}</div>
+      </div>
+      <div class="theme-chip-actions">
+        <button onclick="moveThemePick(${i},-1)" ${i === 0 ? 'disabled' : ''} title="Move up"><i class="ti ti-arrow-up"></i></button>
+        <button onclick="moveThemePick(${i},1)" ${i === themePickOrder.length - 1 ? 'disabled' : ''} title="Move down"><i class="ti ti-arrow-down"></i></button>
+        <button onclick="removeThemePick(${c.id})" title="Remove"><i class="ti ti-x"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function moveThemePick(i, dir) {
+  const j = i + dir;
+  if (j < 0 || j >= themePickOrder.length) return;
+  [themePickOrder[i], themePickOrder[j]] = [themePickOrder[j], themePickOrder[i]];
+  renderThemeSelectedChips();
+}
+
+function removeThemePick(id) {
+  themePickOrder = themePickOrder.filter(x => x !== id);
+  renderThemeSelectedChips();
+  renderThemePickList();
+}
+
+function openThemeAdd() {
+  editThemeId = null;
+  document.getElementById('themeTitle').textContent = 'New collection';
+  document.getElementById('t_name').value = '';
+  document.getElementById('t_bg').value = '';
+  document.getElementById('t_search').value = '';
+  themePickOrder = [];
+  selectedThemeLayout = 'grid';
+  selectedThemeCoverStyle = null;
+  renderThemeLayoutPicker();
+  renderThemeGradientPicker();
+  renderThemeSelectedChips();
+  renderThemePickList();
+  document.getElementById('themeOverlay').style.display = 'flex';
+}
+
+function openThemeEdit(id) {
+  editThemeId = id;
+  const t = themes.find(x => x.id === id);
+  if (!t) return;
+  document.getElementById('themeTitle').textContent = 'Edit collection';
+  document.getElementById('t_name').value = t.name;
+  document.getElementById('t_bg').value = t.bg || '';
+  document.getElementById('t_search').value = '';
+  themePickOrder = [...t.cardIds];
+  selectedThemeLayout = t.layout || 'grid';
+  selectedThemeCoverStyle = t.coverStyle || null;
+  renderThemeGradientPicker();
+  renderThemeLayoutPicker();
+  renderThemeSelectedChips();
+  renderThemePickList();
+  document.getElementById('themeOverlay').style.display = 'flex';
+}
+
+function renderThemePickList() {
+  const q = document.getElementById('t_search').value.toLowerCase().trim();
+  const list = cards.filter(c => {
+    if (!q) return true;
+    return [c.en, c.jp, c.sc, c.dex, c.set].join(' ').toLowerCase().includes(q);
+  });
+  const el = document.getElementById('themePickList');
+  if (!list.length) {
+    el.innerHTML = `<div style="padding:8px;color:var(--text3);font-size:12px">No cards match</div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => {
+    const picked = themePickOrder.includes(c.id);
+    return `
+    <div class="theme-pick-row ${picked ? 'picked' : ''}" onclick="toggleThemePick(${c.id})">
+      <div class="theme-pick-thumb">${c.img ? `<img src="${c.img}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<i class="ti ti-photo-off"></i>`}</div>
+      <div class="theme-pick-info">
+        <div class="theme-pick-name">#${c.dex || '???'} ${c.en}</div>
+        <div class="theme-pick-meta">${[c.set, c.rarity].filter(Boolean).join(' · ') || '—'}</div>
+      </div>
+      <i class="ti ${picked ? 'ti-check' : 'ti-plus'}"></i>
+    </div>`;
+  }).join('');
+}
+
+function toggleThemePick(id) {
+  const idx = themePickOrder.indexOf(id);
+  if (idx !== -1) {
+    themePickOrder.splice(idx, 1);
+  } else {
+    const cap = THEME_LAYOUTS[selectedThemeLayout].capacity;
+    if (cap && themePickOrder.length >= cap) {
+      toast(`This layout fits up to ${cap} cards — remove one first or switch layout`);
+      return;
+    }
+    themePickOrder.push(id);
+  }
+  renderThemeSelectedChips();
+  renderThemePickList();
+}
+
+function saveTheme() {
+  const name = document.getElementById('t_name').value.trim();
+  if (!name) { toast('Collection name is required'); return; }
+  const id = editThemeId || (Math.max(0, ...themes.map(t => t.id)) + 1);
+  const theme = {
+    id,
+    name,
+    bg: document.getElementById('t_bg').value.trim(),
+    coverStyle: selectedThemeCoverStyle,
+    layout: selectedThemeLayout,
+    cardIds: themePickOrder.slice(),
+  };
+  if (editThemeId) themes = themes.map(t => t.id === editThemeId ? theme : t);
+  else themes.push(theme);
+  saveThemes();
+  closeOverlay('themeOverlay');
+  toast(editThemeId ? 'Collection updated' : `${name} created!`);
+  if (activeThemeId === id) openThemeDetail(id);
+  else renderThemes();
+}
+
+function deleteTheme(id) {
+  const t = themes.find(x => x.id === id);
+  if (!t) return;
+  if (!confirm(`Delete the "${t.name}" collection? Cards themselves won't be removed.`)) return;
+  themes = themes.filter(x => x.id !== id);
+  saveThemes();
+  renderThemes();
+  toast('Collection deleted');
+}
 
 // ── Init ───────────────────────────────────────────────────────────────
 document.getElementById('f_date').value = today();
