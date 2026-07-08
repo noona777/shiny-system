@@ -285,11 +285,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── Themes (showcase collections) ── */
 #themesView{display:none}
 
-/* Sidebar + main split — pick a collection on the left, detail loads on the right */
+/* Sidebar + main split — pick a collection on the left, detail loads on the right.
+   Stays a real side column at every viewport width (down to phones); only the
+   sidebar's own width and row content shrink on narrow screens, it never
+   collapses into a horizontal strip above the content. */
 .theme-shell{display:flex;gap:16px;align-items:flex-start}
-.theme-sidebar{width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:.75rem}
+.theme-sidebar{width:200px;flex-shrink:0;display:flex;flex-direction:column;gap:.75rem;position:sticky;top:1rem}
 .theme-sidebar-add{width:100%;justify-content:center}
-.theme-sidebar-list{display:flex;flex-direction:column;gap:5px;max-height:70vh;overflow-y:auto}
+.theme-sidebar-list{display:flex;flex-direction:column;gap:5px;max-height:calc(100vh - 100px);overflow-y:auto}
 .theme-sidebar-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius);cursor:pointer;border:1px solid transparent}
 .theme-sidebar-row:hover{background:var(--surface1)}
 .theme-sidebar-row.active{background:var(--accent-bg);border-color:var(--accent-border)}
@@ -300,11 +303,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .theme-sidebar-count{font-size:11px;color:var(--text3)}
 .theme-main{flex:1;min-width:0}
 
-@media(max-width:1024px){
-  .theme-shell{flex-direction:column}
-  .theme-sidebar{width:100%;flex-direction:column-reverse}
-  .theme-sidebar-list{flex-direction:row;overflow-x:auto;overflow-y:visible;max-height:none;gap:8px;padding-bottom:4px}
-  .theme-sidebar-row{flex:0 0 auto;min-width:150px}
+/* iPad mini / tablet: slightly narrower sidebar, still a full side column */
+@media(max-width:820px){
+  .theme-sidebar{width:150px}
+  .theme-sidebar-add-label{display:none}
+  .theme-sidebar-add{width:40px;height:40px;padding:0;border-radius:50%;flex-shrink:0}
+}
+
+/* Phones: shrink to an icon rail — swatch only, name/count on tap via title tooltip */
+@media(max-width:480px){
+  .theme-sidebar{width:60px}
+  .theme-sidebar-row{padding:4px;justify-content:center}
+  .theme-sidebar-info{display:none}
 }
 
 .theme-detail-banner{border-radius:var(--radius-lg);background-size:cover;background-position:center;background-color:var(--surface1);position:relative;min-height:140px;display:flex;align-items:flex-end;margin-bottom:1rem;border:1px solid var(--border)}
@@ -500,7 +510,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="theme-shell">
     <!-- Sidebar: pick a collection, detail loads on the right -->
     <div class="theme-sidebar">
-      <button class="btn primary theme-sidebar-add" onclick="openThemeAdd()"><i class="ti ti-plus"></i> New collection</button>
+      <button class="btn primary theme-sidebar-add" onclick="openThemeAdd()" title="New collection"><i class="ti ti-plus"></i><span class="theme-sidebar-add-label"> New collection</span></button>
       <div class="theme-sidebar-list" id="themeSidebarList"></div>
     </div>
 
@@ -1357,7 +1367,7 @@ function renderThemeSidebar() {
     // to render the sidebar.
     const swatchBg = t.bg ? `url('${t.bg}')` : themeCoverBg(t);
     return `
-    <div class="theme-sidebar-row ${t.id === activeThemeId ? 'active' : ''}" onclick="selectTheme(${t.id})">
+    <div class="theme-sidebar-row ${t.id === activeThemeId ? 'active' : ''}" onclick="selectTheme(${t.id})" title="${t.name} (${count} card${count !== 1 ? 's' : ''})">
       <div class="theme-sidebar-swatch" style="background-image:${swatchBg}"></div>
       <div class="theme-sidebar-info">
         <div class="theme-sidebar-name">${t.name}</div>
