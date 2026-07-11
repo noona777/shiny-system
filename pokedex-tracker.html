@@ -317,12 +317,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   .theme-sidebar-info{display:none}
 }
 
-.theme-detail-banner{border-radius:var(--radius-lg);background-size:cover;background-position:center;background-color:var(--surface1);position:relative;min-height:140px;display:flex;align-items:flex-end;margin-bottom:1rem;border:1px solid var(--border)}
-.theme-detail-banner .scrim{position:absolute;inset:0;border-radius:var(--radius-lg);background:linear-gradient(to top,rgba(0,0,0,.7),rgba(0,0,0,0) 65%)}
-.theme-detail-body{position:relative;padding:1rem;width:100%}
-.theme-detail-title{font-size:20px;font-weight:700;color:#fff}
-.theme-detail-count{font-size:12px;color:rgba(255,255,255,.8)}
-.theme-detail-actions{display:flex;gap:8px;margin-bottom:1rem}
+.theme-detail-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}
+.theme-detail-meta{font-size:13px;color:var(--text3)}
+.theme-detail-actions{display:flex;gap:8px}
 
 .theme-pick-list{max-height:220px;overflow-y:auto;border:1px solid var(--border2);border-radius:var(--radius);padding:6px}
 .theme-pick-row{display:flex;align-items:center;gap:8px;padding:5px 6px;font-size:13px;border-radius:6px;cursor:pointer}
@@ -377,16 +374,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .theme-layout-horizontal .theme-slot{width:160px;flex:0 0 auto}
 .theme-layout-square4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:420px;margin:0 auto}
 .theme-layout-square9{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:560px;margin:0 auto}
-.theme-layout-diamond{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,auto);
-  grid-template-areas:". top ." "left center right" ". bottom .";
-  gap:14px;max-width:520px;margin:0 auto;align-items:center;
-}
-.theme-layout-diamond .slot-center{grid-area:center;transform:scale(1.18);z-index:2;box-shadow:0 14px 40px rgba(0,0,0,.45)}
-.theme-layout-diamond .slot-top{grid-area:top}
-.theme-layout-diamond .slot-right{grid-area:right}
-.theme-layout-diamond .slot-bottom{grid-area:bottom}
-.theme-layout-diamond .slot-left{grid-area:left}
+/* Grid columns/rows/item positions are set inline per-render (buildDiamondGrid)
+   since the diamond expands outward in rings to fit any number of cards. */
+.theme-layout-diamond{display:grid;gap:14px;max-width:560px;margin:0 auto;align-items:center;justify-items:center}
+.theme-layout-diamond .theme-slot{width:100%}
+.theme-layout-diamond .slot-center{transform:scale(1.18);z-index:2;box-shadow:0 14px 40px rgba(0,0,0,.45)}
+
+/* ── Dex view: national dex grid ── */
+.dex-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+@media(min-width:600px){.dex-grid{grid-template-columns:repeat(8,1fr)}}
+@media(min-width:900px){.dex-grid{grid-template-columns:repeat(10,1fr)}}
+.dex-gen-section{margin-bottom:1.25rem}
+.dex-gen-label{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.dex-cell{min-height:52px;border-radius:6px;background:var(--surface1);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:4px 2px;color:var(--text3);cursor:default;text-align:center}
+.dex-cell-num{font-size:9px;font-weight:600;opacity:.75}
+.dex-cell-name{font-size:10px;font-weight:600;line-height:1.15;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.dex-cell.owned{background:var(--success);border-color:var(--success);color:#fff}
+.dex-cell.wishlist{background:var(--wish-bg);border-color:var(--wish);color:var(--wish)}
+.dex-cell.dimmed{opacity:.3}
 </style>
 </head>
 <body>
@@ -404,6 +409,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="view-tab active" id="tabCollection" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
       <button class="view-tab" id="tabBinder" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
       <button class="view-tab" id="tabThemes" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
+      <button class="view-tab" id="tabDex" onclick="switchView('dex')"><i class="ti ti-list-numbers"></i> Dex</button>
     </div>
     <div class="search-row">
       <input type="text" id="searchInput" placeholder="Name, # or set..." oninput="render()">
@@ -456,6 +462,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="view-tab" id="tabCollection2" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
       <button class="view-tab active" id="tabBinder2" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
       <button class="view-tab" id="tabThemes2" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
+      <button class="view-tab" id="tabDex2" onclick="switchView('dex')"><i class="ti ti-list-numbers"></i> Dex</button>
     </div>
     <select id="binderFilter" onchange="renderBinder()" style="height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none">
       <option value="all">All cards</option>
@@ -504,6 +511,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="view-tab" id="tabCollection3" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
       <button class="view-tab" id="tabBinder3" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
       <button class="view-tab active" id="tabThemes3" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
+      <button class="view-tab" id="tabDex3" onclick="switchView('dex')"><i class="ti ti-list-numbers"></i> Dex</button>
     </div>
   </div>
 
@@ -522,21 +530,47 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
 
       <div id="themeMainContent" style="display:none">
-        <div class="theme-detail-banner" id="themeDetailBanner">
-          <div class="scrim"></div>
-          <div class="theme-detail-body">
-            <div class="theme-detail-title" id="themeDetailName"></div>
-            <div class="theme-detail-count" id="themeDetailCount"></div>
+        <div class="theme-detail-header">
+          <div class="theme-detail-meta" id="themeDetailMeta"></div>
+          <div class="theme-detail-actions">
+            <button class="btn" onclick="openThemeEdit(activeThemeId)"><i class="ti ti-edit"></i> Edit collection</button>
+            <button class="btn danger-soft" onclick="deleteTheme(activeThemeId)"><i class="ti ti-trash"></i> Delete</button>
           </div>
-        </div>
-        <div class="theme-detail-actions">
-          <button class="btn" onclick="openThemeEdit(activeThemeId)"><i class="ti ti-edit"></i> Edit collection</button>
-          <button class="btn danger-soft" onclick="deleteTheme(activeThemeId)"><i class="ti ti-trash"></i> Delete</button>
         </div>
         <div class="grid" id="themeDetailGrid"></div>
       </div>
     </div>
   </div>
+
+</div>
+
+<!-- ══ DEX VIEW ══════════════════════════════════════════════════════ -->
+<div id="dexView" class="app" style="display:none">
+
+  <div class="topbar">
+    <div class="logo">
+      <div class="pokeball"></div>
+      Pokédex Tracker
+    </div>
+    <div class="view-tabs">
+      <button class="view-tab" id="tabCollection4" onclick="switchView('collection')"><i class="ti ti-layout-grid"></i> Collection</button>
+      <button class="view-tab" id="tabBinder4" onclick="switchView('binder')"><i class="ti ti-book"></i> Binder</button>
+      <button class="view-tab" id="tabThemes4" onclick="switchView('themes')"><i class="ti ti-sparkles"></i> Themes</button>
+      <button class="view-tab active" id="tabDex4" onclick="switchView('dex')"><i class="ti ti-list-numbers"></i> Dex</button>
+    </div>
+    <div class="search-row">
+      <input type="text" id="dexSearch" placeholder="Name or #..." oninput="renderDex()">
+      <select id="dexFilter" onchange="renderDex()">
+        <option value="all">All</option>
+        <option value="missing">Missing only</option>
+        <option value="owned">Owned only</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="stats-row" id="dexStatsRow"></div>
+
+  <div id="dexGenSections"></div>
 
 </div>
 
@@ -1155,17 +1189,21 @@ function switchView(view) {
   document.getElementById('collectionView').style.display = view === 'collection' ? '' : 'none';
   document.getElementById('binderView').style.display     = view === 'binder'     ? 'block' : 'none';
   document.getElementById('themesView').style.display     = view === 'themes'     ? 'block' : 'none';
-  // Sync all three tab bars
-  ['', '2', '3'].forEach(suffix => {
+  document.getElementById('dexView').style.display        = view === 'dex'        ? 'block' : 'none';
+  // Sync all four tab bars
+  ['', '2', '3', '4'].forEach(suffix => {
     const tabCollection = document.getElementById('tabCollection' + suffix);
     const tabBinder     = document.getElementById('tabBinder' + suffix);
     const tabThemes     = document.getElementById('tabThemes' + suffix);
+    const tabDex        = document.getElementById('tabDex' + suffix);
     if (tabCollection) tabCollection.classList.toggle('active', view === 'collection');
     if (tabBinder)     tabBinder.classList.toggle('active',     view === 'binder');
     if (tabThemes)     tabThemes.classList.toggle('active',     view === 'themes');
+    if (tabDex)        tabDex.classList.toggle('active',        view === 'dex');
   });
   if (view === 'binder') renderBinder();
   if (view === 'themes') renderThemes();
+  if (view === 'dex') renderDex();
 }
 
 // ── Binder state ───────────────────────────────────────────────────────
@@ -1315,9 +1353,39 @@ const THEME_LAYOUTS = {
   horizontal3: { label: 'Horizontal (3)', icon: 'ti-layout-columns', capacity: 3,    cls: 'theme-layout-horizontal' },
   square4:     { label: 'Square (2×2)',   icon: 'ti-square',         capacity: 4,    cls: 'theme-layout-square4' },
   square9:     { label: 'Square (3×3)',   icon: 'ti-grid-3x3',       capacity: 9,    cls: 'theme-layout-square9' },
-  diamond5:    { label: 'Diamond',        icon: 'ti-diamond',        capacity: 5,    cls: 'theme-layout-diamond' },
+  diamond5:    { label: 'Diamond',        icon: 'ti-diamond',        capacity: null, cls: 'theme-layout-diamond' },
 };
-const DIAMOND_ROLES = ['center', 'top', 'right', 'bottom', 'left'];
+
+// Diamond layout: first card is the featured center; every card after that
+// fills outward rings around it (ring 1 = 4 cards, ring 2 = 8, ring 3 = 12, …),
+// so the diamond keeps growing however many cards are added.
+function diamondRingOffsets(r) {
+  const pts = [];
+  let x = 0, y = -r;
+  const moves = [[1, 1], [-1, 1], [-1, -1], [1, -1]];
+  for (const [dx, dy] of moves) {
+    for (let i = 0; i < r; i++) {
+      pts.push([x, y]);
+      x += dx; y += dy;
+    }
+  }
+  return pts;
+}
+
+function buildDiamondPositions(memberCards) {
+  const positions = [{ dx: 0, dy: 0, c: memberCards[0], isCenter: true }];
+  const remaining = memberCards.slice(1);
+  let r = 1;
+  while (remaining.length) {
+    for (const [dx, dy] of diamondRingOffsets(r)) {
+      if (!remaining.length) break;
+      positions.push({ dx, dy, c: remaining.shift(), isCenter: false });
+    }
+    r++;
+  }
+  const R = Math.max(1, r - 1);
+  return { positions, size: 2 * R + 1, R };
+}
 
 // Pokémon-type-inspired gradients — used as the cover fallback instead of flat grey
 // whenever a collection has no background image set.
@@ -1383,11 +1451,12 @@ function selectTheme(id) {
   renderThemeMain();
 }
 
-function themeSlotHTML(c, roleClass) {
+function themeSlotHTML(c, roleClass, extraStyle) {
   const cls = `theme-slot ${roleClass || ''} ${!c ? 'empty' : ''} ${c && c.status === 'wishlist' ? 'wishlist' : ''}`.trim();
-  if (!c) return `<div class="${cls}"><div class="no-art"><i class="ti ti-photo-off"></i></div></div>`;
+  const style = extraStyle ? ` style="${extraStyle}"` : '';
+  if (!c) return `<div class="${cls}"${style}><div class="no-art"><i class="ti ti-photo-off"></i></div></div>`;
   return `
-    <div class="${cls}" title="${c.en}">
+    <div class="${cls}"${style} title="${c.en}">
       ${c.img
         ? `<img src="${c.img}" alt="${c.en}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
         : ''}
@@ -1416,17 +1485,15 @@ function renderThemeMain() {
   const isShowcase = layout !== 'grid';
   const coverBg = themeCoverBg(t);
 
-  const banner = document.getElementById('themeDetailBanner');
-  banner.classList.remove('no-bg');
-  banner.style.backgroundImage = coverBg;
-  document.getElementById('themeDetailName').textContent = t.name;
   const count = t.cardIds.length;
-  document.getElementById('themeDetailCount').textContent = `${count} card${count !== 1 ? 's' : ''} · ${layoutCfg.label}`;
+  document.getElementById('themeDetailMeta').textContent = `${count} card${count !== 1 ? 's' : ''} · ${layoutCfg.label}`;
 
   const memberCards = t.cardIds.map(cid => cards.find(c => c.id === cid)).filter(Boolean);
   const wrap = document.getElementById('themeDetailGrid');
   wrap.className = `${layoutCfg.cls} ${isShowcase ? 'theme-showcase' : ''}`.trim();
   wrap.style.backgroundImage = isShowcase ? coverBg : '';
+  wrap.style.gridTemplateColumns = '';
+  wrap.style.gridTemplateRows = '';
 
   if (!memberCards.length) {
     wrap.className = 'grid';
@@ -1456,7 +1523,13 @@ function renderThemeMain() {
         </div>
       </div>`).join('');
   } else if (layout === 'diamond5') {
-    wrap.innerHTML = DIAMOND_ROLES.map((role, i) => themeSlotHTML(memberCards[i], `slot-${role}`)).join('');
+    const { positions, size } = buildDiamondPositions(memberCards);
+    wrap.style.gridTemplateColumns = `repeat(${size}, minmax(0,1fr))`;
+    wrap.style.gridTemplateRows = `repeat(${size}, auto)`;
+    const mid = (size - 1) / 2 + 1; // 1-indexed center line
+    wrap.innerHTML = positions.map(({ dx, dy, c, isCenter }) =>
+      themeSlotHTML(c, isCenter ? 'slot-center' : '', `grid-column:${mid + dx};grid-row:${mid + dy}`)
+    ).join('');
   } else {
     const slotCount = layoutCfg.capacity;
     wrap.innerHTML = Array.from({ length: slotCount }, (_, i) => themeSlotHTML(memberCards[i])).join('');
@@ -1641,6 +1714,1108 @@ function deleteTheme(id) {
   if (activeThemeId === id) activeThemeId = null;
   renderThemes();
   toast('Collection deleted');
+}
+
+// ── Dex view: national dex 0001–1025 ──────────────────────────────────
+const DEX_GENERATIONS = [
+  { label: 'Generation 1 · Kanto',    start: 1,    end: 151  },
+  { label: 'Generation 2 · Johto',    start: 152,  end: 251  },
+  { label: 'Generation 3 · Hoenn',    start: 252,  end: 386  },
+  { label: 'Generation 4 · Sinnoh',   start: 387,  end: 493  },
+  { label: 'Generation 5 · Unova',    start: 494,  end: 649  },
+  { label: 'Generation 6 · Kalos',    start: 650,  end: 721  },
+  { label: 'Generation 7 · Alola',    start: 722,  end: 809  },
+  { label: 'Generation 8 · Galar',    start: 810,  end: 905  },
+  { label: 'Generation 9 · Paldea',   start: 906,  end: 1025 },
+];
+
+// National dex species names, index 0 = #0001 ... index 1024 = #1025
+const DEX_NAMES = [
+  'Bulbasaur',
+  'Ivysaur',
+  'Venusaur',
+  'Charmander',
+  'Charmeleon',
+  'Charizard',
+  'Squirtle',
+  'Wartortle',
+  'Blastoise',
+  'Caterpie',
+  'Metapod',
+  'Butterfree',
+  'Weedle',
+  'Kakuna',
+  'Beedrill',
+  'Pidgey',
+  'Pidgeotto',
+  'Pidgeot',
+  'Rattata',
+  'Raticate',
+  'Spearow',
+  'Fearow',
+  'Ekans',
+  'Arbok',
+  'Pikachu',
+  'Raichu',
+  'Sandshrew',
+  'Sandslash',
+  'Nidoran ♀',
+  'Nidorina',
+  'Nidoqueen',
+  'Nidoran ♂',
+  'Nidorino',
+  'Nidoking',
+  'Clefairy',
+  'Clefable',
+  'Vulpix',
+  'Ninetales',
+  'Jigglypuff',
+  'Wigglytuff',
+  'Zubat',
+  'Golbat',
+  'Oddish',
+  'Gloom',
+  'Vileplume',
+  'Paras',
+  'Parasect',
+  'Venonat',
+  'Venomoth',
+  'Diglett',
+  'Dugtrio',
+  'Meowth',
+  'Persian',
+  'Psyduck',
+  'Golduck',
+  'Mankey',
+  'Primeape',
+  'Growlithe',
+  'Arcanine',
+  'Poliwag',
+  'Poliwhirl',
+  'Poliwrath',
+  'Abra',
+  'Kadabra',
+  'Alakazam',
+  'Machop',
+  'Machoke',
+  'Machamp',
+  'Bellsprout',
+  'Weepinbell',
+  'Victreebel',
+  'Tentacool',
+  'Tentacruel',
+  'Geodude',
+  'Graveler',
+  'Golem',
+  'Ponyta',
+  'Rapidash',
+  'Slowpoke',
+  'Slowbro',
+  'Magnemite',
+  'Magneton',
+  'Farfetch\'d',
+  'Doduo',
+  'Dodrio',
+  'Seel',
+  'Dewgong',
+  'Grimer',
+  'Muk',
+  'Shellder',
+  'Cloyster',
+  'Gastly',
+  'Haunter',
+  'Gengar',
+  'Onix',
+  'Drowzee',
+  'Hypno',
+  'Krabby',
+  'Kingler',
+  'Voltorb',
+  'Electrode',
+  'Exeggcute',
+  'Exeggutor',
+  'Cubone',
+  'Marowak',
+  'Hitmonlee',
+  'Hitmonchan',
+  'Lickitung',
+  'Koffing',
+  'Weezing',
+  'Rhyhorn',
+  'Rhydon',
+  'Chansey',
+  'Tangela',
+  'Kangaskhan',
+  'Horsea',
+  'Seadra',
+  'Goldeen',
+  'Seaking',
+  'Staryu',
+  'Starmie',
+  'Mr. Mime',
+  'Scyther',
+  'Jynx',
+  'Electabuzz',
+  'Magmar',
+  'Pinsir',
+  'Tauros',
+  'Magikarp',
+  'Gyarados',
+  'Lapras',
+  'Ditto',
+  'Eevee',
+  'Vaporeon',
+  'Jolteon',
+  'Flareon',
+  'Porygon',
+  'Omanyte',
+  'Omastar',
+  'Kabuto',
+  'Kabutops',
+  'Aerodactyl',
+  'Snorlax',
+  'Articuno',
+  'Zapdos',
+  'Moltres',
+  'Dratini',
+  'Dragonair',
+  'Dragonite',
+  'Mewtwo',
+  'Mew',
+  'Chikorita',
+  'Bayleef',
+  'Meganium',
+  'Cyndaquil',
+  'Quilava',
+  'Typhlosion',
+  'Totodile',
+  'Croconaw',
+  'Feraligatr',
+  'Sentret',
+  'Furret',
+  'Hoothoot',
+  'Noctowl',
+  'Ledyba',
+  'Ledian',
+  'Spinarak',
+  'Ariados',
+  'Crobat',
+  'Chinchou',
+  'Lanturn',
+  'Pichu',
+  'Cleffa',
+  'Igglybuff',
+  'Togepi',
+  'Togetic',
+  'Natu',
+  'Xatu',
+  'Mareep',
+  'Flaaffy',
+  'Ampharos',
+  'Bellossom',
+  'Marill',
+  'Azumarill',
+  'Sudowoodo',
+  'Politoed',
+  'Hoppip',
+  'Skiploom',
+  'Jumpluff',
+  'Aipom',
+  'Sunkern',
+  'Sunflora',
+  'Yanma',
+  'Wooper',
+  'Quagsire',
+  'Espeon',
+  'Umbreon',
+  'Murkrow',
+  'Slowking',
+  'Misdreavus',
+  'Unown',
+  'Wobbuffet',
+  'Girafarig',
+  'Pineco',
+  'Forretress',
+  'Dunsparce',
+  'Gligar',
+  'Steelix',
+  'Snubbull',
+  'Granbull',
+  'Qwilfish',
+  'Scizor',
+  'Shuckle',
+  'Heracross',
+  'Sneasel',
+  'Teddiursa',
+  'Ursaring',
+  'Slugma',
+  'Magcargo',
+  'Swinub',
+  'Piloswine',
+  'Corsola',
+  'Remoraid',
+  'Octillery',
+  'Delibird',
+  'Mantine',
+  'Skarmory',
+  'Houndour',
+  'Houndoom',
+  'Kingdra',
+  'Phanpy',
+  'Donphan',
+  'Porygon2',
+  'Stantler',
+  'Smeargle',
+  'Tyrogue',
+  'Hitmontop',
+  'Smoochum',
+  'Elekid',
+  'Magby',
+  'Miltank',
+  'Blissey',
+  'Raikou',
+  'Entei',
+  'Suicune',
+  'Larvitar',
+  'Pupitar',
+  'Tyranitar',
+  'Lugia',
+  'Ho-Oh',
+  'Celebi',
+  'Treecko',
+  'Grovyle',
+  'Sceptile',
+  'Torchic',
+  'Combusken',
+  'Blaziken',
+  'Mudkip',
+  'Marshtomp',
+  'Swampert',
+  'Poochyena',
+  'Mightyena',
+  'Zigzagoon',
+  'Linoone',
+  'Wurmple',
+  'Silcoon',
+  'Beautifly',
+  'Cascoon',
+  'Dustox',
+  'Lotad',
+  'Lombre',
+  'Ludicolo',
+  'Seedot',
+  'Nuzleaf',
+  'Shiftry',
+  'Taillow',
+  'Swellow',
+  'Wingull',
+  'Pelipper',
+  'Ralts',
+  'Kirlia',
+  'Gardevoir',
+  'Surskit',
+  'Masquerain',
+  'Shroomish',
+  'Breloom',
+  'Slakoth',
+  'Vigoroth',
+  'Slaking',
+  'Nincada',
+  'Ninjask',
+  'Shedinja',
+  'Whismur',
+  'Loudred',
+  'Exploud',
+  'Makuhita',
+  'Hariyama',
+  'Azurill',
+  'Nosepass',
+  'Skitty',
+  'Delcatty',
+  'Sableye',
+  'Mawile',
+  'Aron',
+  'Lairon',
+  'Aggron',
+  'Meditite',
+  'Medicham',
+  'Electrike',
+  'Manectric',
+  'Plusle',
+  'Minun',
+  'Volbeat',
+  'Illumise',
+  'Roselia',
+  'Gulpin',
+  'Swalot',
+  'Carvanha',
+  'Sharpedo',
+  'Wailmer',
+  'Wailord',
+  'Numel',
+  'Camerupt',
+  'Torkoal',
+  'Spoink',
+  'Grumpig',
+  'Spinda',
+  'Trapinch',
+  'Vibrava',
+  'Flygon',
+  'Cacnea',
+  'Cacturne',
+  'Swablu',
+  'Altaria',
+  'Zangoose',
+  'Seviper',
+  'Lunatone',
+  'Solrock',
+  'Barboach',
+  'Whiscash',
+  'Corphish',
+  'Crawdaunt',
+  'Baltoy',
+  'Claydol',
+  'Lileep',
+  'Cradily',
+  'Anorith',
+  'Armaldo',
+  'Feebas',
+  'Milotic',
+  'Castform',
+  'Kecleon',
+  'Shuppet',
+  'Banette',
+  'Duskull',
+  'Dusclops',
+  'Tropius',
+  'Chimecho',
+  'Absol',
+  'Wynaut',
+  'Snorunt',
+  'Glalie',
+  'Spheal',
+  'Sealeo',
+  'Walrein',
+  'Clamperl',
+  'Huntail',
+  'Gorebyss',
+  'Relicanth',
+  'Luvdisc',
+  'Bagon',
+  'Shelgon',
+  'Salamence',
+  'Beldum',
+  'Metang',
+  'Metagross',
+  'Regirock',
+  'Regice',
+  'Registeel',
+  'Latias',
+  'Latios',
+  'Kyogre',
+  'Groudon',
+  'Rayquaza',
+  'Jirachi',
+  'Deoxys',
+  'Turtwig',
+  'Grotle',
+  'Torterra',
+  'Chimchar',
+  'Monferno',
+  'Infernape',
+  'Piplup',
+  'Prinplup',
+  'Empoleon',
+  'Starly',
+  'Staravia',
+  'Staraptor',
+  'Bidoof',
+  'Bibarel',
+  'Kricketot',
+  'Kricketune',
+  'Shinx',
+  'Luxio',
+  'Luxray',
+  'Budew',
+  'Roserade',
+  'Cranidos',
+  'Rampardos',
+  'Shieldon',
+  'Bastiodon',
+  'Burmy',
+  'Wormadam',
+  'Mothim',
+  'Combee',
+  'Vespiquen',
+  'Pachirisu',
+  'Buizel',
+  'Floatzel',
+  'Cherubi',
+  'Cherrim',
+  'Shellos',
+  'Gastrodon',
+  'Ambipom',
+  'Drifloon',
+  'Drifblim',
+  'Buneary',
+  'Lopunny',
+  'Mismagius',
+  'Honchkrow',
+  'Glameow',
+  'Purugly',
+  'Chingling',
+  'Stunky',
+  'Skuntank',
+  'Bronzor',
+  'Bronzong',
+  'Bonsly',
+  'Mime Jr.',
+  'Happiny',
+  'Chatot',
+  'Spiritomb',
+  'Gible',
+  'Gabite',
+  'Garchomp',
+  'Munchlax',
+  'Riolu',
+  'Lucario',
+  'Hippopotas',
+  'Hippowdon',
+  'Skorupi',
+  'Drapion',
+  'Croagunk',
+  'Toxicroak',
+  'Carnivine',
+  'Finneon',
+  'Lumineon',
+  'Mantyke',
+  'Snover',
+  'Abomasnow',
+  'Weavile',
+  'Magnezone',
+  'Lickilicky',
+  'Rhyperior',
+  'Tangrowth',
+  'Electivire',
+  'Magmortar',
+  'Togekiss',
+  'Yanmega',
+  'Leafeon',
+  'Glaceon',
+  'Gliscor',
+  'Mamoswine',
+  'Porygon-Z',
+  'Gallade',
+  'Probopass',
+  'Dusknoir',
+  'Froslass',
+  'Rotom',
+  'Uxie',
+  'Mesprit',
+  'Azelf',
+  'Dialga',
+  'Palkia',
+  'Heatran',
+  'Regigigas',
+  'Giratina',
+  'Cresselia',
+  'Phione',
+  'Manaphy',
+  'Darkrai',
+  'Shaymin',
+  'Arceus',
+  'Victini',
+  'Snivy',
+  'Servine',
+  'Serperior',
+  'Tepig',
+  'Pignite',
+  'Emboar',
+  'Oshawott',
+  'Dewott',
+  'Samurott',
+  'Patrat',
+  'Watchog',
+  'Lillipup',
+  'Herdier',
+  'Stoutland',
+  'Purrloin',
+  'Liepard',
+  'Pansage',
+  'Simisage',
+  'Pansear',
+  'Simisear',
+  'Panpour',
+  'Simipour',
+  'Munna',
+  'Musharna',
+  'Pidove',
+  'Tranquill',
+  'Unfezant',
+  'Blitzle',
+  'Zebstrika',
+  'Roggenrola',
+  'Boldore',
+  'Gigalith',
+  'Woobat',
+  'Swoobat',
+  'Drilbur',
+  'Excadrill',
+  'Audino',
+  'Timburr',
+  'Gurdurr',
+  'Conkeldurr',
+  'Tympole',
+  'Palpitoad',
+  'Seismitoad',
+  'Throh',
+  'Sawk',
+  'Sewaddle',
+  'Swadloon',
+  'Leavanny',
+  'Venipede',
+  'Whirlipede',
+  'Scolipede',
+  'Cottonee',
+  'Whimsicott',
+  'Petilil',
+  'Lilligant',
+  'Basculin',
+  'Sandile',
+  'Krokorok',
+  'Krookodile',
+  'Darumaka',
+  'Darmanitan',
+  'Maractus',
+  'Dwebble',
+  'Crustle',
+  'Scraggy',
+  'Scrafty',
+  'Sigilyph',
+  'Yamask',
+  'Cofagrigus',
+  'Tirtouga',
+  'Carracosta',
+  'Archen',
+  'Archeops',
+  'Trubbish',
+  'Garbodor',
+  'Zorua',
+  'Zoroark',
+  'Minccino',
+  'Cinccino',
+  'Gothita',
+  'Gothorita',
+  'Gothitelle',
+  'Solosis',
+  'Duosion',
+  'Reuniclus',
+  'Ducklett',
+  'Swanna',
+  'Vanillite',
+  'Vanillish',
+  'Vanilluxe',
+  'Deerling',
+  'Sawsbuck',
+  'Emolga',
+  'Karrablast',
+  'Escavalier',
+  'Foongus',
+  'Amoonguss',
+  'Frillish',
+  'Jellicent',
+  'Alomomola',
+  'Joltik',
+  'Galvantula',
+  'Ferroseed',
+  'Ferrothorn',
+  'Klink',
+  'Klang',
+  'Klinklang',
+  'Tynamo',
+  'Eelektrik',
+  'Eelektross',
+  'Elgyem',
+  'Beheeyem',
+  'Litwick',
+  'Lampent',
+  'Chandelure',
+  'Axew',
+  'Fraxure',
+  'Haxorus',
+  'Cubchoo',
+  'Beartic',
+  'Cryogonal',
+  'Shelmet',
+  'Accelgor',
+  'Stunfisk',
+  'Mienfoo',
+  'Mienshao',
+  'Druddigon',
+  'Golett',
+  'Golurk',
+  'Pawniard',
+  'Bisharp',
+  'Bouffalant',
+  'Rufflet',
+  'Braviary',
+  'Vullaby',
+  'Mandibuzz',
+  'Heatmor',
+  'Durant',
+  'Deino',
+  'Zweilous',
+  'Hydreigon',
+  'Larvesta',
+  'Volcarona',
+  'Cobalion',
+  'Terrakion',
+  'Virizion',
+  'Tornadus',
+  'Thundurus',
+  'Reshiram',
+  'Zekrom',
+  'Landorus',
+  'Kyurem',
+  'Keldeo',
+  'Meloetta',
+  'Genesect',
+  'Chespin',
+  'Quilladin',
+  'Chesnaught',
+  'Fennekin',
+  'Braixen',
+  'Delphox',
+  'Froakie',
+  'Frogadier',
+  'Greninja',
+  'Bunnelby',
+  'Diggersby',
+  'Fletchling',
+  'Fletchinder',
+  'Talonflame',
+  'Scatterbug',
+  'Spewpa',
+  'Vivillon',
+  'Litleo',
+  'Pyroar',
+  'Flabébé',
+  'Floette',
+  'Florges',
+  'Skiddo',
+  'Gogoat',
+  'Pancham',
+  'Pangoro',
+  'Furfrou',
+  'Espurr',
+  'Meowstic',
+  'Honedge',
+  'Doublade',
+  'Aegislash',
+  'Spritzee',
+  'Aromatisse',
+  'Swirlix',
+  'Slurpuff',
+  'Inkay',
+  'Malamar',
+  'Binacle',
+  'Barbaracle',
+  'Skrelp',
+  'Dragalge',
+  'Clauncher',
+  'Clawitzer',
+  'Helioptile',
+  'Heliolisk',
+  'Tyrunt',
+  'Tyrantrum',
+  'Amaura',
+  'Aurorus',
+  'Sylveon',
+  'Hawlucha',
+  'Dedenne',
+  'Carbink',
+  'Goomy',
+  'Sliggoo',
+  'Goodra',
+  'Klefki',
+  'Phantump',
+  'Trevenant',
+  'Pumpkaboo',
+  'Gourgeist',
+  'Bergmite',
+  'Avalugg',
+  'Noibat',
+  'Noivern',
+  'Xerneas',
+  'Yveltal',
+  'Zygarde',
+  'Diancie',
+  'Hoopa',
+  'Volcanion',
+  'Rowlet',
+  'Dartrix',
+  'Decidueye',
+  'Litten',
+  'Torracat',
+  'Incineroar',
+  'Popplio',
+  'Brionne',
+  'Primarina',
+  'Pikipek',
+  'Trumbeak',
+  'Toucannon',
+  'Yungoos',
+  'Gumshoos',
+  'Grubbin',
+  'Charjabug',
+  'Vikavolt',
+  'Crabrawler',
+  'Crabominable',
+  'Oricorio',
+  'Cutiefly',
+  'Ribombee',
+  'Rockruff',
+  'Lycanroc',
+  'Wishiwashi',
+  'Mareanie',
+  'Toxapex',
+  'Mudbray',
+  'Mudsdale',
+  'Dewpider',
+  'Araquanid',
+  'Fomantis',
+  'Lurantis',
+  'Morelull',
+  'Shiinotic',
+  'Salandit',
+  'Salazzle',
+  'Stufful',
+  'Bewear',
+  'Bounsweet',
+  'Steenee',
+  'Tsareena',
+  'Comfey',
+  'Oranguru',
+  'Passimian',
+  'Wimpod',
+  'Golisopod',
+  'Sandygast',
+  'Palossand',
+  'Pyukumuku',
+  'Type: Null',
+  'Silvally',
+  'Minior',
+  'Komala',
+  'Turtonator',
+  'Togedemaru',
+  'Mimikyu',
+  'Bruxish',
+  'Drampa',
+  'Dhelmise',
+  'Jangmo-o',
+  'Hakamo-o',
+  'Kommo-o',
+  'Tapu Koko',
+  'Tapu Lele',
+  'Tapu Bulu',
+  'Tapu Fini',
+  'Cosmog',
+  'Cosmoem',
+  'Solgaleo',
+  'Lunala',
+  'Nihilego',
+  'Buzzwole',
+  'Pheromosa',
+  'Xurkitree',
+  'Celesteela',
+  'Kartana',
+  'Guzzlord',
+  'Necrozma',
+  'Magearna',
+  'Marshadow',
+  'Poipole',
+  'Naganadel',
+  'Stakataka',
+  'Blacephalon',
+  'Zeraora',
+  'Meltan',
+  'Melmetal',
+  'Grookey',
+  'Thwackey',
+  'Rillaboom',
+  'Scorbunny',
+  'Raboot',
+  'Cinderace',
+  'Sobble',
+  'Drizzile',
+  'Inteleon',
+  'Skwovet',
+  'Greedent',
+  'Rookidee',
+  'Corvisquire',
+  'Corviknight',
+  'Blipbug',
+  'Dottler',
+  'Orbeetle',
+  'Nickit',
+  'Thievul',
+  'Gossifleur',
+  'Eldegoss',
+  'Wooloo',
+  'Dubwool',
+  'Chewtle',
+  'Drednaw',
+  'Yamper',
+  'Boltund',
+  'Rolycoly',
+  'Carkol',
+  'Coalossal',
+  'Applin',
+  'Flapple',
+  'Appletun',
+  'Silicobra',
+  'Sandaconda',
+  'Cramorant',
+  'Arrokuda',
+  'Barraskewda',
+  'Toxel',
+  'Toxtricity',
+  'Sizzlipede',
+  'Centiskorch',
+  'Clobbopus',
+  'Grapploct',
+  'Sinistea',
+  'Polteageist',
+  'Hatenna',
+  'Hattrem',
+  'Hatterene',
+  'Impidimp',
+  'Morgrem',
+  'Grimmsnarl',
+  'Obstagoon',
+  'Perrserker',
+  'Cursola',
+  'Sirfetch\'d',
+  'Mr. Rime',
+  'Runerigus',
+  'Milcery',
+  'Alcremie',
+  'Falinks',
+  'Pincurchin',
+  'Snom',
+  'Frosmoth',
+  'Stonjourner',
+  'Eiscue',
+  'Indeedee',
+  'Morpeko',
+  'Cufant',
+  'Copperajah',
+  'Dracozolt',
+  'Arctozolt',
+  'Dracovish',
+  'Arctovish',
+  'Duraludon',
+  'Dreepy',
+  'Drakloak',
+  'Dragapult',
+  'Zacian',
+  'Zamazenta',
+  'Eternatus',
+  'Kubfu',
+  'Urshifu',
+  'Zarude',
+  'Regieleki',
+  'Regidrago',
+  'Glastrier',
+  'Spectrier',
+  'Calyrex',
+  'Wyrdeer',
+  'Kleavor',
+  'Ursaluna',
+  'Basculegion',
+  'Sneasler',
+  'Overqwil',
+  'Enamorus',
+  'Sprigatito',
+  'Floragato',
+  'Meowscarada',
+  'Fuecoco',
+  'Crocalor',
+  'Skeledirge',
+  'Quaxly',
+  'Quaxwell',
+  'Quaquaval',
+  'Lechonk',
+  'Oinkologne',
+  'Tarountula',
+  'Spidops',
+  'Nymble',
+  'Lokix',
+  'Pawmi',
+  'Pawmo',
+  'Pawmot',
+  'Tandemaus',
+  'Maushold',
+  'Fidough',
+  'Dachsbun',
+  'Smoliv',
+  'Dolliv',
+  'Arboliva',
+  'Squawkabilly',
+  'Nacli',
+  'Naclstack',
+  'Garganacl',
+  'Charcadet',
+  'Armarouge',
+  'Ceruledge',
+  'Tadbulb',
+  'Bellibolt',
+  'Wattrel',
+  'Kilowattrel',
+  'Maschiff',
+  'Mabosstiff',
+  'Shroodle',
+  'Grafaiai',
+  'Bramblin',
+  'Brambleghast',
+  'Toedscool',
+  'Toedscruel',
+  'Klawf',
+  'Capsakid',
+  'Scovillain',
+  'Rellor',
+  'Rabsca',
+  'Flittle',
+  'Espathra',
+  'Tinkatink',
+  'Tinkatuff',
+  'Tinkaton',
+  'Wiglett',
+  'Wugtrio',
+  'Bombirdier',
+  'Finizen',
+  'Palafin',
+  'Varoom',
+  'Revavroom',
+  'Cyclizar',
+  'Orthworm',
+  'Glimmet',
+  'Glimmora',
+  'Greavard',
+  'Houndstone',
+  'Flamigo',
+  'Cetoddle',
+  'Cetitan',
+  'Veluza',
+  'Dondozo',
+  'Tatsugiri',
+  'Annihilape',
+  'Clodsire',
+  'Farigiraf',
+  'Dudunsparce',
+  'Kingambit',
+  'Great Tusk',
+  'Scream Tail',
+  'Brute Bonnet',
+  'Flutter Mane',
+  'Slither Wing',
+  'Sandy Shocks',
+  'Iron Treads',
+  'Iron Bundle',
+  'Iron Hands',
+  'Iron Jugulis',
+  'Iron Moth',
+  'Iron Thorns',
+  'Frigibax',
+  'Arctibax',
+  'Baxcalibur',
+  'Gimmighoul',
+  'Gholdengo',
+  'Wo-Chien',
+  'Chien-Pao',
+  'Ting-Lu',
+  'Chi-Yu',
+  'Roaring Moon',
+  'Iron Valiant',
+  'Koraidon',
+  'Miraidon',
+  'Walking Wake',
+  'Iron Leaves',
+  'Dipplin',
+  'Poltchageist',
+  'Sinistcha',
+  'Okidogi',
+  'Munkidori',
+  'Fezandipiti',
+  'Ogerpon',
+  'Archaludon',
+  'Hydrapple',
+  'Gouging Fire',
+  'Raging Bolt',
+  'Iron Boulder',
+  'Iron Crown',
+  'Terapagos',
+  'Pecharunt'
+];
+
+function renderDex() {
+  const q = document.getElementById('dexSearch').value.toLowerCase().trim();
+  const filter = document.getElementById('dexFilter').value;
+
+  // Map dex number -> best-matching card (prefer owned over wishlist)
+  const byDex = {};
+  cards.forEach(c => {
+    const n = parseInt(c.dex);
+    if (!n || n < 1 || n > 1025) return;
+    const existing = byDex[n];
+    if (!existing || (existing.status !== 'owned' && c.status === 'owned')) byDex[n] = c;
+  });
+
+  const owned = Object.values(byDex).filter(c => c.status === 'owned').length;
+
+  document.getElementById('dexStatsRow').innerHTML = `
+    <div class="stat"><div class="lbl">Dex complete</div><div class="val accent">${owned}<span class="stat-of">of 1025</span></div></div>
+    <div class="stat"><div class="lbl">Missing</div><div class="val">${1025 - owned}</div></div>
+  `;
+
+  document.getElementById('dexGenSections').innerHTML = DEX_GENERATIONS.map(gen => {
+    let cells = '';
+    for (let n = gen.start; n <= gen.end; n++) {
+      const c = byDex[n];
+      const status = c ? c.status : null;
+      const label = String(n).padStart(4, '0');
+      const speciesName = DEX_NAMES[n - 1] || '???';
+
+      if (filter === 'missing' && status === 'owned') continue;
+      if (filter === 'owned' && status !== 'owned') continue;
+
+      let matchesSearch = true;
+      if (q) {
+        const haystack = [label, speciesName, c ? c.en : '', c ? c.jp : '', c ? c.sc : ''].join(' ').toLowerCase();
+        matchesSearch = haystack.includes(q);
+      }
+
+      const cls = ['dex-cell'];
+      if (status === 'owned') cls.push('owned');
+      else if (status === 'wishlist') cls.push('wishlist');
+      if (!matchesSearch) cls.push('dimmed');
+
+      cells += `<div class="${cls.join(' ')}" title="#${label} · ${speciesName}${c && c.en !== speciesName ? ' (' + c.en + ')' : ''}">
+        <div class="dex-cell-num">${label}</div>
+        <div class="dex-cell-name">${speciesName}</div>
+      </div>`;
+    }
+    if (!cells) return '';
+    return `
+      <div class="dex-gen-section">
+        <div class="dex-gen-label">${gen.label}</div>
+        <div class="dex-grid">${cells}</div>
+      </div>`;
+  }).join('') || `
+    <div class="empty">
+      <i class="ti ti-search"></i>
+      <p>No dex numbers match — try a different search.</p>
+    </div>`;
 }
 
 // ── Init ───────────────────────────────────────────────────────────────
