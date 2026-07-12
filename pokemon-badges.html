@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Badges">
+<meta name="theme-color" content="#ffffff">
+<title>Pokémon Pin Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.33.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f8f6;--surface:#ffffff;--surface1:#f2f2f0;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:#e0e0dd;--border2:#c8c8c4;
+  --accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;
+  --success:#059669;--danger:#dc2626;--danger-bg:#fef2f2;
+  --wish:#534AB7;--wish-bg:#EEEDFE;--wish-border:#AFA9EC;
+  --radius:8px;--radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a1a;--surface:#242424;--surface1:#2e2e2e;
+    --text:#f0f0ee;--text2:#aaa;--text3:#666;
+    --border:#333;--border2:#444;
+    --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-border:#1d4ed8;
+    --success:#10b981;--danger:#ef4444;--danger-bg:#450a0a;
+    --wish:#7F77DD;--wish-bg:#26215C;--wish-border:#534AB7;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+.app{max-width:1000px;margin:0 auto;padding:1rem}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;white-space:nowrap}
+.pokeball{width:22px;height:22px;border-radius:50%;background:linear-gradient(to bottom,#e74c3c 50%,#fff 50%);border:2.5px solid #333;position:relative;flex-shrink:0}
+.pokeball::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:6px;height:6px;border-radius:50%;background:#fff;border:2px solid #333}
+
+.search-row{display:flex;gap:8px;flex:1;min-width:180px}
+.topbar-actions{display:flex;gap:8px;flex-shrink:0}
+.search-row input{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none;flex:1}
+.search-row input:focus{border-color:var(--accent)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--surface1)}
+.btn.primary{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.btn.danger-soft{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+.btn i{font-size:15px}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem 1rem}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.stat .val{font-size:19px;font-weight:600;color:var(--text)}
+.stat .val.accent{color:var(--accent)}
+.stat .val.wish{color:var(--wish)}
+
+.filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit}
+.pill:hover{background:var(--surface1)}
+.pill.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.pill.wish-pill.active{background:var(--wish-bg);border-color:var(--wish-border);color:var(--wish)}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1.5px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.card:hover{border-color:var(--border2)}
+.card.wishlist{border:2px solid var(--wish)}
+
+.card-img-wrap{position:relative;height:150px;background:var(--surface1);display:flex;align-items:center;justify-content:center}
+.card-img-wrap img{width:100%;height:100%;object-fit:contain;padding:14px}
+.card.wishlist .card-img-wrap img{filter:grayscale(1) brightness(.85)}
+.no-img-icon{font-size:36px;color:var(--text3)}
+.wish-badge{position:absolute;top:7px;right:7px;background:var(--wish-bg);color:var(--wish);font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;border:1px solid var(--wish-border);display:flex;align-items:center;gap:3px}
+
+.card-body{padding:.75rem;flex:1}
+.card-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.card-loc{font-size:11px;color:var(--text2);margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.info-key{font-size:11px;color:var(--text3)}
+.info-val{font-size:12px;font-weight:500;color:var(--text)}
+.card-notes{font-size:11px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-style:italic}
+
+.card-footer{padding:.5rem .75rem;border-top:1px solid var(--border);display:flex;gap:6px}
+.card-footer button{flex:1;font-size:11px;padding:5px 0;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px}
+.card-footer button:hover{background:var(--surface1)}
+.card-footer button.f-own{border-color:var(--wish-border);color:var(--wish);background:var(--wish-bg)}
+.card-footer button.f-del{border-color:var(--danger);color:var(--danger)}
+.card-footer button.f-del:hover{background:var(--danger-bg)}
+.card-footer button.f-edit{border-color:var(--border2)}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;width:100%;max-width:360px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:.25rem;color:var(--text)}
+.modal .sub{font-size:13px;color:var(--text2);margin-bottom:1rem}
+.form-grid{display:grid;gap:8px}
+.form-grid input,.form-grid select{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface1);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.form-grid input:focus,.form-grid select:focus{border-color:var(--accent)}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.form-group{display:grid;gap:3px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.modal-footer button{padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface1);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+.modal-footer .confirm{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:500}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty i{font-size:40px;display:block;margin-bottom:10px}
+.empty p{font-size:14px}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;padding:8px 18px;border-radius:20px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+.fab-add{position:fixed;right:1.5rem;bottom:1.5rem;width:56px;height:56px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:150;transition:transform .15s,box-shadow .15s}
+.fab-add:hover{transform:scale(1.06);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.fab-add:active{transform:scale(.96)}
+
+.tab-bar{display:flex;gap:0;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;width:fit-content;margin-bottom:1rem}
+.tab-btn{padding:8px 18px;font-size:13px;border:none;background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;border-right:1px solid var(--border2)}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.tab-btn:hover:not(.active){background:var(--surface1)}
+
+.pin-num{font-size:11px;color:var(--text3);font-weight:600}
+
+@media(max-width:480px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+  .topbar .logo{flex:0 0 100%;font-size:15px}
+  .topbar .search-row{flex:0 0 100%}
+  .fab-add{right:1rem;bottom:1rem;width:52px;height:52px}
+  .tab-btn{flex:1;justify-content:center;font-size:12px;padding:7px 8px}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="logo"><div class="pokeball"></div> Pokémon Pin Tracker</div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Name or #..." oninput="render()">
+    </div>
+    <div class="topbar-actions">
+      <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i></button>
+      <button class="btn" onclick="triggerImport()" title="Import from CSV"><i class="ti ti-upload"></i></button>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabPokeCenter" onclick="switchTab('pokecenter')"><i class="ti ti-building-store"></i> PokeCenter Pins</button>
+    <button class="tab-btn" id="tabPokePark" onclick="switchTab('pokepark')"><i class="ti ti-ferris-wheel"></i> PokePark Kanto Pins</button>
+  </div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <button class="pill active" data-f="all" onclick="setFilter(this,'all')">All</button>
+    <button class="pill" data-f="owned" onclick="setFilter(this,'owned')">Owned</button>
+    <button class="pill wish-pill" data-f="wishlist" onclick="setFilter(this,'wishlist')">Wishlist</button>
+  </div>
+
+  <div class="grid" id="cardGrid"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button class="fab-add" onclick="openAdd()" title="Add badge" aria-label="Add badge"><i class="ti ti-plus"></i></button>
+
+<div class="overlay" id="addOverlay" style="display:none">
+  <div class="modal">
+    <h3 id="addTitle">Add badge</h3>
+    <p class="sub">Fill in what you know — only name is required.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label" id="f_name_label">Center name *</div>
+        <input type="text" id="f_name" placeholder="e.g. Pokémon Center Kanazawa">
+      </div>
+      <div class="form-group" id="f_loc_group">
+        <div class="form-label">Location</div>
+        <input type="text" id="f_loc" placeholder="e.g. Kanazawa, Ishikawa">
+      </div>
+      <div class="form-group" id="f_opened_group">
+        <div class="form-label">Opening date</div>
+        <input type="text" id="f_opened" placeholder="e.g. November 20th 2020">
+      </div>
+      <div class="form-group" id="f_num_group" style="display:none">
+        <div class="form-label">Pin number</div>
+        <input type="text" id="f_num" placeholder="e.g. 0025">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Image URL</div>
+        <input type="url" id="f_img" placeholder="Paste image link (optional)">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Status</div>
+        <select id="f_status">
+          <option value="owned">Owned</option>
+          <option value="wishlist">Wishlist</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Notes</div>
+        <input type="text" id="f_notes" placeholder="e.g. Bought in-store, July 2026">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay()">Cancel</button>
+      <button class="confirm" onclick="saveCard()">Save badge</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Collection definitions ────────────────────────────────────────────────
+const POKECENTER_SEED = [
+  { name: 'Pokémon Center Osaka', loc: 'Osaka', opened: 'November 14th 1998', img: 'https://www.serebii.net/pokemoncenter/currentlogo/osaka.png' },
+  { name: 'Pokémon Center Nagoya', loc: 'Nagoya, Aichi', opened: 'October 11th 2002', img: 'https://www.serebii.net/pokemoncenter/currentlogo/nagoya.png' },
+  { name: 'Pokémon Center Fukuoka', loc: 'Fukuoka', opened: 'November 1st 2003', img: 'https://www.serebii.net/pokemoncenter/currentlogo/fukuoka.png' },
+  { name: 'Pokémon Center Yokohama', loc: 'Yokohama', opened: 'March 5th 2005', img: 'https://www.serebii.net/pokemoncenter/currentlogo/yokohama.png' },
+  { name: 'Pokémon Center Sapporo (2025– )', loc: 'Sapporo', opened: 'July 1st 2005', img: 'https://www.serebii.net/pokemoncenter/currentlogo/sapporo.png' },
+  { name: 'Pokémon Center Sapporo (Popplio ver.)', loc: 'Sapporo', opened: 'July 1st 2005', img: 'images/sapporo_popplio.png' },
+  { name: 'Pokémon Center Tohoku', loc: 'Sendai, Miyagi', opened: 'December 4th 2011', img: 'https://www.serebii.net/pokemoncenter/currentlogo/tohoku.png' },
+  { name: 'Pokémon Center Mega Tokyo', loc: 'Ikebukuro, Tokyo', opened: 'December 12th 2012', img: 'https://www.serebii.net/pokemoncenter/currentlogo/megatokyo.png' },
+  { name: 'Pokémon Center Tokyo Bay', loc: 'Funabashi, Chiba', opened: 'November 22nd 2013', img: 'https://www.serebii.net/pokemoncenter/currentlogo/tokyobay.png' },
+  { name: 'Pokémon Center Hiroshima', loc: 'Hiroshima', opened: 'June 26th 2015', img: 'https://www.serebii.net/pokemoncenter/currentlogo/hiroshima.png' },
+  { name: 'Pokémon Center Kyoto', loc: 'Kyoto', opened: 'March 16th 2016', img: 'https://www.serebii.net/pokemoncenter/currentlogo/kyoto.png' },
+  { name: 'Pokémon Center Skytree Town', loc: 'Sumida, Tokyo', opened: 'July 6th 2016', img: 'https://www.serebii.net/pokemoncenter/currentlogo/skytreetown.png' },
+  { name: 'Pokémon Center Tokyo DX', loc: 'Nihombashi, Tokyo', opened: 'March 14th 2018', img: 'https://www.serebii.net/pokemoncenter/currentlogo/tokyodx.png' },
+  { name: 'Pokémon Center Singapore', loc: 'Singapore', opened: 'April 17th 2019', img: 'https://www.serebii.net/pokemoncenter/currentlogo/singapore.png' },
+  { name: 'Pokémon Center Osaka DX', loc: 'Shinsaibashi, Osaka', opened: 'September 20th 2019', img: 'https://www.serebii.net/pokemoncenter/currentlogo/osakadx.png' },
+  { name: 'Pokémon Center Shibuya', loc: 'Shibuya, Tokyo', opened: 'November 22nd 2019', img: 'https://www.serebii.net/pokemoncenter/currentlogo/shibuya.png' },
+  { name: 'Pokémon Center Kanazawa', loc: 'Kanazawa, Ishikawa', opened: 'November 20th 2020', img: 'https://www.serebii.net/pokemoncenter/currentlogo/kanazawa.png' },
+  { name: 'Pokémon Center Okinawa', loc: 'Kitanakagusuku, Okinawa', opened: 'August 11th 2022', img: 'https://www.serebii.net/pokemoncenter/currentlogo/okinawa.png' },
+  { name: 'Pokémon Center Taipei', loc: 'Taipei, Taiwan', opened: 'December 8th 2023', img: 'https://www.serebii.net/pokemoncenter/currentlogo/taipei.png' },
+  { name: 'Pokémon Center Kagawa', loc: 'Takamatsu, Kagawa', opened: 'September 24th 2025', img: 'https://www.serebii.net/pokemoncenter/currentlogo/kagawa.png' },
+  { name: 'Pokémon Center Yokohama Satellite', loc: 'Nishi-ku, Yokohama', opened: 'April 9th 2026', img: 'https://www.serebii.net/pokemoncenter/currentlogo/yokohamasatellite.png' },
+];
+
+const POKEPARK_SEED = [
+  { num: "0001", name: "Bulbasaur", img: "images/pokepark/0001.png" },
+  { num: "0002", name: "Ivysaur", img: "images/pokepark/0002.png" },
+  { num: "0003", name: "Venusaur", img: "images/pokepark/0003.png" },
+  { num: "0004", name: "Charmander", img: "images/pokepark/0004.png" },
+  { num: "0005", name: "Charmeleon", img: "images/pokepark/0005.png" },
+  { num: "0006", name: "Charizard", img: "images/pokepark/0006.png" },
+  { num: "0007", name: "Squirtle", img: "images/pokepark/0007.png" },
+  { num: "0008", name: "Wartortle", img: "images/pokepark/0008.png" },
+  { num: "0009", name: "Blastoise", img: "images/pokepark/0009.png" },
+  { num: "0010", name: "Caterpie", img: "images/pokepark/0010.png" },
+  { num: "0011", name: "Metapod", img: "images/pokepark/0011.png" },
+  { num: "0012", name: "Butterfree", img: "images/pokepark/0012.png" },
+  { num: "0013", name: "Weedle", img: "images/pokepark/0013.png" },
+  { num: "0014", name: "Kakuna", img: "images/pokepark/0014.png" },
+  { num: "0015", name: "Beedrill", img: "images/pokepark/0015.png" },
+  { num: "0016", name: "Pidgey", img: "images/pokepark/0016.png" },
+  { num: "0017", name: "Pidgeotto", img: "images/pokepark/0017.png" },
+  { num: "0018", name: "Pidgeot", img: "images/pokepark/0018.png" },
+  { num: "0019", name: "Rattata", img: "images/pokepark/0019.png" },
+  { num: "0020", name: "Raticate", img: "images/pokepark/0020.png" },
+  { num: "0021", name: "Spearow", img: "images/pokepark/0021.png" },
+  { num: "0022", name: "Fearow", img: "images/pokepark/0022.png" },
+  { num: "0023", name: "Ekans", img: "images/pokepark/0023.png" },
+  { num: "0024", name: "Arbok", img: "images/pokepark/0024.png" },
+  { num: "0025", name: "Pikachu", img: "images/pokepark/0025.png" },
+  { num: "0026", name: "Raichu", img: "images/pokepark/0026.png" },
+  { num: "0027", name: "Sandshrew", img: "images/pokepark/0027.png" },
+  { num: "0028", name: "Sandslash", img: "images/pokepark/0028.png" },
+  { num: "0029", name: "Nidoran (F)", img: "images/pokepark/0029.png" },
+  { num: "0030", name: "Nidorina", img: "images/pokepark/0030.png" },
+  { num: "0031", name: "Nidoqueen", img: "images/pokepark/0031.png" },
+  { num: "0032", name: "Nidoran (M)", img: "images/pokepark/0032.png" },
+  { num: "0033", name: "Nidorino", img: "images/pokepark/0033.png" },
+  { num: "0034", name: "Nidoking", img: "images/pokepark/0034.png" },
+  { num: "0035", name: "Clefairy", img: "images/pokepark/0035.png" },
+  { num: "0036", name: "Clefable", img: "images/pokepark/0036.png" },
+  { num: "0037", name: "Vulpix", img: "images/pokepark/0037.png" },
+  { num: "0038", name: "Ninetales", img: "images/pokepark/0038.png" },
+  { num: "0039", name: "Jigglypuff", img: "images/pokepark/0039.png" },
+  { num: "0040", name: "Wigglytuff", img: "images/pokepark/0040.png" },
+  { num: "0041", name: "Zubat", img: "images/pokepark/0041.png" },
+  { num: "0042", name: "Golbat", img: "images/pokepark/0042.png" },
+  { num: "0043", name: "Oddish", img: "images/pokepark/0043.png" },
+  { num: "0044", name: "Gloom", img: "images/pokepark/0044.png" },
+  { num: "0045", name: "Vileplume", img: "images/pokepark/0045.png" },
+  { num: "0046", name: "Paras", img: "images/pokepark/0046.png" },
+  { num: "0047", name: "Parasect", img: "images/pokepark/0047.png" },
+  { num: "0048", name: "Venonat", img: "images/pokepark/0048.png" },
+  { num: "0049", name: "Venomoth", img: "images/pokepark/0049.png" },
+  { num: "0050", name: "Diglett", img: "images/pokepark/0050.png" },
+  { num: "0051", name: "Dugtrio", img: "images/pokepark/0051.png" },
+  { num: "0052", name: "Meowth", img: "images/pokepark/0052.png" },
+  { num: "0053", name: "Persian", img: "images/pokepark/0053.png" },
+  { num: "0054", name: "Psyduck", img: "images/pokepark/0054.png" },
+  { num: "0055", name: "Golduck", img: "images/pokepark/0055.png" },
+  { num: "0056", name: "Mankey", img: "images/pokepark/0056.png" },
+  { num: "0057", name: "Primeape", img: "images/pokepark/0057.png" },
+  { num: "0058", name: "Growlithe", img: "images/pokepark/0058.png" },
+  { num: "0059", name: "Arcanine", img: "images/pokepark/0059.png" },
+  { num: "0060", name: "Poliwag", img: "images/pokepark/0060.png" },
+  { num: "0061", name: "Poliwhirl", img: "images/pokepark/0061.png" },
+  { num: "0062", name: "Poliwrath", img: "images/pokepark/0062.png" },
+  { num: "0063", name: "Abra", img: "images/pokepark/0063.png" },
+  { num: "0064", name: "Kadabra", img: "images/pokepark/0064.png" },
+  { num: "0065", name: "Alakazam", img: "images/pokepark/0065.png" },
+  { num: "0066", name: "Machop", img: "images/pokepark/0066.png" },
+  { num: "0067", name: "Machoke", img: "images/pokepark/0067.png" },
+  { num: "0068", name: "Machamp", img: "images/pokepark/0068.png" },
+  { num: "0069", name: "Bellsprout", img: "images/pokepark/0069.png" },
+  { num: "0070", name: "Weepinbell", img: "images/pokepark/0070.png" },
+  { num: "0071", name: "Victreebel", img: "images/pokepark/0071.png" },
+  { num: "0072", name: "Tentacool", img: "images/pokepark/0072.png" },
+  { num: "0073", name: "Tentacruel", img: "images/pokepark/0073.png" },
+  { num: "0074", name: "Geodude", img: "images/pokepark/0074.png" },
+  { num: "0075", name: "Graveler", img: "images/pokepark/0075.png" },
+  { num: "0076", name: "Golem", img: "images/pokepark/0076.png" },
+  { num: "0077", name: "Ponyta", img: "images/pokepark/0077.png" },
+  { num: "0078", name: "Rapidash", img: "images/pokepark/0078.png" },
+  { num: "0079", name: "Slowpoke", img: "images/pokepark/0079.png" },
+  { num: "0080", name: "Slowbro", img: "images/pokepark/0080.png" },
+  { num: "0081", name: "Magnemite", img: "images/pokepark/0081.png" },
+  { num: "0082", name: "Magneton", img: "images/pokepark/0082.png" },
+  { num: "0083", name: "Farfetch'd", img: "images/pokepark/0083.png" },
+  { num: "0084", name: "Doduo", img: "images/pokepark/0084.png" },
+  { num: "0085", name: "Dodrio", img: "images/pokepark/0085.png" },
+  { num: "0086", name: "Seel", img: "images/pokepark/0086.png" },
+  { num: "0087", name: "Dewgong", img: "images/pokepark/0087.png" },
+  { num: "0088", name: "Grimer", img: "images/pokepark/0088.png" },
+  { num: "0089", name: "Muk", img: "images/pokepark/0089.png" },
+  { num: "0090", name: "Shellder", img: "images/pokepark/0090.png" },
+  { num: "0091", name: "Cloyster", img: "images/pokepark/0091.png" },
+  { num: "0092", name: "Gastly", img: "images/pokepark/0092.png" },
+  { num: "0093", name: "Haunter", img: "images/pokepark/0093.png" },
+  { num: "0094", name: "Gengar", img: "images/pokepark/0094.png" },
+  { num: "0095", name: "Onix", img: "images/pokepark/0095.png" },
+  { num: "0096", name: "Drowzee", img: "images/pokepark/0096.png" },
+  { num: "0097", name: "Hypno", img: "images/pokepark/0097.png" },
+  { num: "0098", name: "Krabby", img: "images/pokepark/0098.png" },
+  { num: "0099", name: "Kingler", img: "images/pokepark/0099.png" },
+  { num: "0100", name: "Voltorb", img: "images/pokepark/0100.png" },
+  { num: "0101", name: "Electrode", img: "images/pokepark/0101.png" },
+  { num: "0102", name: "Exeggcute", img: "images/pokepark/0102.png" },
+  { num: "0103", name: "Exeggutor", img: "images/pokepark/0103.png" },
+  { num: "0104", name: "Cubone", img: "images/pokepark/0104.png" },
+  { num: "0105", name: "Marowak", img: "images/pokepark/0105.png" },
+  { num: "0106", name: "Hitmonlee", img: "images/pokepark/0106.png" },
+  { num: "0107", name: "Hitmonchan", img: "images/pokepark/0107.png" },
+  { num: "0108", name: "Lickitung", img: "images/pokepark/0108.png" },
+  { num: "0109", name: "Koffing", img: "images/pokepark/0109.png" },
+  { num: "0110", name: "Weezing", img: "images/pokepark/0110.png" },
+  { num: "0111", name: "Rhyhorn", img: "images/pokepark/0111.png" },
+  { num: "0112", name: "Rhydon", img: "images/pokepark/0112.png" },
+  { num: "0113", name: "Chansey", img: "images/pokepark/0113.png" },
+  { num: "0114", name: "Tangela", img: "images/pokepark/0114.png" },
+  { num: "0115", name: "Kangaskhan", img: "images/pokepark/0115.png" },
+  { num: "0116", name: "Horsea", img: "images/pokepark/0116.png" },
+  { num: "0117", name: "Seadra", img: "images/pokepark/0117.png" },
+  { num: "0118", name: "Goldeen", img: "images/pokepark/0118.png" },
+  { num: "0119", name: "Seaking", img: "images/pokepark/0119.png" },
+  { num: "0120", name: "Staryu", img: "images/pokepark/0120.png" },
+  { num: "0121", name: "Starmie", img: "images/pokepark/0121.png" },
+  { num: "0122", name: "Mr. Mime", img: "images/pokepark/0122.png" },
+  { num: "0123", name: "Scyther", img: "images/pokepark/0123.png" },
+  { num: "0124", name: "Jynx", img: "images/pokepark/0124.png" },
+  { num: "0125", name: "Electabuzz", img: "images/pokepark/0125.png" },
+  { num: "0126", name: "Magmar", img: "images/pokepark/0126.png" },
+  { num: "0127", name: "Pinsir", img: "images/pokepark/0127.png" },
+  { num: "0128", name: "Tauros", img: "images/pokepark/0128.png" },
+  { num: "0129", name: "Magikarp", img: "images/pokepark/0129.png" },
+  { num: "0130", name: "Gyarados", img: "images/pokepark/0130.png" },
+  { num: "0131", name: "Lapras", img: "images/pokepark/0131.png" },
+  { num: "0132", name: "Ditto", img: "images/pokepark/0132.png" },
+  { num: "0133", name: "Eevee", img: "images/pokepark/0133.png" },
+  { num: "0134", name: "Vaporeon", img: "images/pokepark/0134.png" },
+  { num: "0135", name: "Jolteon", img: "images/pokepark/0135.png" },
+  { num: "0136", name: "Flareon", img: "images/pokepark/0136.png" },
+  { num: "0137", name: "Porygon", img: "images/pokepark/0137.png" },
+  { num: "0138", name: "Omanyte", img: "images/pokepark/0138.png" },
+  { num: "0139", name: "Omastar", img: "images/pokepark/0139.png" },
+  { num: "0140", name: "Kabuto", img: "images/pokepark/0140.png" },
+  { num: "0141", name: "Kabutops", img: "images/pokepark/0141.png" },
+  { num: "0142", name: "Aerodactyl", img: "images/pokepark/0142.png" },
+  { num: "0143", name: "Snorlax", img: "images/pokepark/0143.png" },
+  { num: "0144", name: "Articuno", img: "images/pokepark/0144.png" },
+  { num: "0145", name: "Zapdos", img: "images/pokepark/0145.png" },
+  { num: "0146", name: "Moltres", img: "images/pokepark/0146.png" },
+  { num: "0147", name: "Dratini", img: "images/pokepark/0147.png" },
+  { num: "0148", name: "Dragonair", img: "images/pokepark/0148.png" },
+  { num: "0149", name: "Dragonite", img: "images/pokepark/0149.png" },
+  { num: "0150", name: "Mewtwo", img: "images/pokepark/0150.png" },
+  { num: "0151", name: "Mew", img: "images/pokepark/0151.png" },
+];
+
+const COLLECTIONS = {
+  pokecenter: {
+    storageKey: 'pcb_badges_v1',
+    seed: POKECENTER_SEED,
+    keyField: 'name',
+    nameLabel: 'Center name *',
+    searchPlaceholder: 'Name or location...',
+    noun: 'badge',
+    csvName: 'pokemon-center-badges.csv',
+    seedToCard: (s, i) => ({ id: i + 1, name: s.name, loc: s.loc, opened: s.opened, img: s.img, status: 'wishlist', notes: '' }),
+  },
+  pokepark: {
+    storageKey: 'pcb_pokepark_v1',
+    seed: POKEPARK_SEED,
+    keyField: 'num',
+    nameLabel: 'Pin name *',
+    searchPlaceholder: 'Name or #...',
+    noun: 'pin',
+    csvName: 'pokepark-kanto-pins.csv',
+    seedToCard: (s, i) => ({ id: i + 1, num: s.num, name: s.name, img: s.img, status: 'wishlist', notes: '' }),
+  },
+};
+
+function loadCollection(tab) {
+  const cfg = COLLECTIONS[tab];
+  const stored = JSON.parse(localStorage.getItem(cfg.storageKey) || 'null');
+  const seeded = cfg.seed.map(cfg.seedToCard);
+  if (!stored) return seeded;
+
+  // Merge in any seed entries not already present (matched by keyField), so new
+  // entries show up later without wiping the user's existing owned/wishlist progress.
+  let nextId = stored.length ? Math.max(...stored.map(c => c.id)) + 1 : 1;
+  const existingKeys = new Set(stored.map(c => c[cfg.keyField]));
+  seeded.forEach(s => {
+    if (!existingKeys.has(s[cfg.keyField])) {
+      stored.push({ ...s, id: nextId++ });
+    }
+  });
+  return stored;
+}
+
+const data = {
+  pokecenter: loadCollection('pokecenter'),
+  pokepark: loadCollection('pokepark'),
+};
+
+let activeTab = 'pokecenter';
+let currentFilter = 'all';
+let editId = null;
+
+function cards() { return data[activeTab]; }
+function cfg() { return COLLECTIONS[activeTab]; }
+function save() { localStorage.setItem(cfg().storageKey, JSON.stringify(data[activeTab])); }
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function switchTab(tab) {
+  activeTab = tab;
+  currentFilter = 'all';
+  document.getElementById('tabPokeCenter').classList.toggle('active', tab === 'pokecenter');
+  document.getElementById('tabPokePark').classList.toggle('active', tab === 'pokepark');
+  document.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p.dataset.f === 'all'));
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').placeholder = cfg().searchPlaceholder;
+  render();
+}
+
+function setFilter(el, f) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = f;
+  render();
+}
+
+function renderStats() {
+  const list = cards();
+  const owned = list.filter(c => c.status === 'owned').length;
+  const wishlist = list.filter(c => c.status === 'wishlist').length;
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="lbl">Owned</div><div class="val accent">${owned}<span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:3px">of ${list.length}</span></div></div>
+    <div class="stat"><div class="lbl">Wishlist</div><div class="val wish">${wishlist}</div></div>
+  `;
+}
+
+function render() {
+  renderStats();
+  const isPark = activeTab === 'pokepark';
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  let filtered = cards().filter(c => {
+    if (currentFilter === 'owned' && c.status !== 'owned') return false;
+    if (currentFilter === 'wishlist' && c.status !== 'wishlist') return false;
+    if (q) {
+      const haystack = [c.name, c.loc, c.num].filter(Boolean).join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (a.status !== b.status) return a.status === 'owned' ? -1 : 1;
+    if (isPark) return (a.num || '').localeCompare(b.num || '');
+    return a.name.localeCompare(b.name);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('cardGrid').innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <i class="ti ti-search"></i>
+        <p>No ${cfg().noun}s found — try a different search or add one.</p>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('cardGrid').innerHTML = filtered.map(c => {
+    const isWish = c.status === 'wishlist';
+    return `
+    <div class="card ${isWish ? 'wishlist' : ''}">
+      <div class="card-img-wrap">
+        ${c.img
+          ? `<img src="${c.img}" alt="${c.name} ${cfg().noun}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+          : ''}
+        <div class="no-img-icon" style="${c.img ? 'display:none' : 'display:flex'}"><i class="ti ti-photo-off"></i></div>
+        ${isWish ? `<div class="wish-badge"><i class="ti ti-star" style="font-size:9px"></i> Wishlist</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-name">${isPark && c.num ? `<span class="pin-num">#${c.num}</span> ` : ''}${c.name}</div>
+        ${isPark
+          ? ''
+          : `<div class="card-loc">${c.loc || 'Unknown location'}</div>
+             <div class="info-row">
+               <span class="info-key">Opened</span>
+               <span class="info-val">${c.opened || '—'}</span>
+             </div>`
+        }
+        ${c.notes ? `<div class="card-notes">${c.notes}</div>` : ''}
+      </div>
+      <div class="card-footer">
+        ${isWish ? `<button class="f-own" onclick="markOwned(${c.id})"><i class="ti ti-check"></i> I own this</button>` : ''}
+        <button class="f-edit" onclick="openEdit(${c.id})"><i class="ti ti-edit"></i></button>
+        <button class="f-del" onclick="deleteCard(${c.id})"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markOwned(id) {
+  const c = cards().find(c => c.id === id);
+  if (c) { c.status = 'owned'; save(); render(); toast('Marked as owned'); }
+}
+
+function deleteCard(id) {
+  if (!confirm(`Remove this ${cfg().noun}?`)) return;
+  data[activeTab] = cards().filter(c => c.id !== id);
+  save(); render(); toast(`${cfg().noun[0].toUpperCase()}${cfg().noun.slice(1)} removed`);
+}
+
+function openAdd() {
+  editId = null;
+  const isPark = activeTab === 'pokepark';
+  document.getElementById('addTitle').textContent = `Add ${cfg().noun}`;
+  document.getElementById('f_name_label').textContent = cfg().nameLabel;
+  document.getElementById('f_loc_group').style.display = isPark ? 'none' : '';
+  document.getElementById('f_opened_group').style.display = isPark ? 'none' : '';
+  document.getElementById('f_num_group').style.display = isPark ? '' : 'none';
+  ['f_name','f_loc','f_opened','f_num','f_img','f_notes'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f_status').value = 'wishlist';
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function openEdit(id) {
+  const c = cards().find(c => c.id === id);
+  if (!c) return;
+  const isPark = activeTab === 'pokepark';
+  editId = id;
+  document.getElementById('addTitle').textContent = `Edit ${cfg().noun}`;
+  document.getElementById('f_name_label').textContent = cfg().nameLabel;
+  document.getElementById('f_loc_group').style.display = isPark ? 'none' : '';
+  document.getElementById('f_opened_group').style.display = isPark ? 'none' : '';
+  document.getElementById('f_num_group').style.display = isPark ? '' : 'none';
+  document.getElementById('f_name').value = c.name || '';
+  document.getElementById('f_loc').value = c.loc || '';
+  document.getElementById('f_opened').value = c.opened || '';
+  document.getElementById('f_num').value = c.num || '';
+  document.getElementById('f_img').value = c.img || '';
+  document.getElementById('f_status').value = c.status || 'wishlist';
+  document.getElementById('f_notes').value = c.notes || '';
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function closeOverlay() {
+  document.getElementById('addOverlay').style.display = 'none';
+}
+
+function saveCard() {
+  const name = document.getElementById('f_name').value.trim();
+  if (!name) { toast('Name is required'); return; }
+  const isPark = activeTab === 'pokepark';
+  const data_ = {
+    name,
+    img: document.getElementById('f_img').value.trim(),
+    status: document.getElementById('f_status').value,
+    notes: document.getElementById('f_notes').value.trim(),
+  };
+  if (isPark) {
+    data_.num = document.getElementById('f_num').value.trim();
+  } else {
+    data_.loc = document.getElementById('f_loc').value.trim();
+    data_.opened = document.getElementById('f_opened').value.trim();
+  }
+  if (editId) {
+    const c = cards().find(c => c.id === editId);
+    Object.assign(c, data_);
+  } else {
+    const newId = cards().length ? Math.max(...cards().map(c => c.id)) + 1 : 1;
+    cards().push({ id: newId, ...data_ });
+  }
+  save();
+  closeOverlay();
+  render();
+  toast(editId ? `${cfg().noun[0].toUpperCase()}${cfg().noun.slice(1)} updated` : `${cfg().noun[0].toUpperCase()}${cfg().noun.slice(1)} added`);
+}
+
+function exportCSV() {
+  const isPark = activeTab === 'pokepark';
+  const headers = isPark ? ['num','name','img','status','notes'] : ['name','loc','opened','img','status','notes'];
+  const rows = cards().map(c => headers.map(h => `"${(c[h] || '').toString().replace(/"/g,'""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = cfg().csvName;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function triggerImport() {
+  document.getElementById('csvFileInput').click();
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    const headers = lines[0].split(',').map(h => h.replace(/"/g,'').trim());
+    const parsed = lines.slice(1).map((line, i) => {
+      const values = line.match(/(".*?"|[^,]+)(?=\s*,|\s*$)/g) || [];
+      const obj = { id: i + 1 };
+      headers.forEach((h, idx) => {
+        obj[h] = (values[idx] || '').replace(/^"|"$/g, '').replace(/""/g, '"').trim();
+      });
+      return obj;
+    });
+    data[activeTab] = parsed;
+    save();
+    render();
+    toast('Import complete');
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+render();
+</script>
+</body>
+</html>
