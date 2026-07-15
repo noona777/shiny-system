@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Sealed Tracker">
+<meta name="theme-color" content="#ffffff">
+<title>Sealed Product Tracker</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.33.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f8f6;--surface:#ffffff;--surface1:#f2f2f0;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:#e0e0dd;--border2:#c8c8c4;
+  --accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;
+  --success:#059669;--success-bg:#ecfdf5;--success-border:#a7f3d0;
+  --danger:#dc2626;--danger-bg:#fef2f2;--danger-border:#fecaca;
+  --partial:#b45309;--partial-bg:#fef3e2;--partial-border:#fcd9a8;
+  --gold:#C9A84C;
+  --radius:8px;--radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a1a;--surface:#242424;--surface1:#2e2e2e;
+    --text:#f0f0ee;--text2:#aaa;--text3:#666;
+    --border:#333;--border2:#444;
+    --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-border:#1d4ed8;
+    --success:#10b981;--success-bg:#0d2a1f;--success-border:#0f5132;
+    --danger:#ef4444;--danger-bg:#450a0a;--danger-border:#7f1d1d;
+    --partial:#f0b064;--partial-bg:#3a2408;--partial-border:#7a4a0e;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1a1a1a;--surface:#242424;--surface1:#2e2e2e;
+  --text:#f0f0ee;--text2:#aaa;--text3:#666;
+  --border:#333;--border2:#444;
+  --accent:#3b82f6;--accent-bg:#1e3a5f;--accent-border:#1d4ed8;
+  --success:#10b981;--success-bg:#0d2a1f;--success-border:#0f5132;
+  --danger:#ef4444;--danger-bg:#450a0a;--danger-border:#7f1d1d;
+  --partial:#f0b064;--partial-bg:#3a2408;--partial-border:#7a4a0e;
+}
+:root[data-theme="light"]{
+  --bg:#f8f8f6;--surface:#ffffff;--surface1:#f2f2f0;
+  --text:#1a1a1a;--text2:#555;--text3:#999;
+  --border:#e0e0dd;--border2:#c8c8c4;
+  --accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;
+  --success:#059669;--success-bg:#ecfdf5;--success-border:#a7f3d0;
+  --danger:#dc2626;--danger-bg:#fef2f2;--danger-border:#fecaca;
+  --partial:#b45309;--partial-bg:#fef3e2;--partial-border:#fcd9a8;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+.app{max-width:1000px;margin:0 auto;padding:1rem}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:600;white-space:nowrap}
+.logo i{font-size:22px;color:var(--gold)}
+
+.search-row{display:flex;gap:8px;flex:1;min-width:180px}
+.topbar-actions{display:flex;gap:8px;flex-shrink:0}
+.search-row input,.search-row select{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);font-size:13px;outline:none}
+.search-row input{flex:1}
+.search-row input:focus,.search-row select:focus{border-color:var(--accent)}
+
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--surface1)}
+.btn.primary{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.btn.primary:hover{opacity:.9}
+.btn.danger-soft{background:var(--danger-bg);border-color:var(--danger);color:var(--danger)}
+.btn i{font-size:15px}
+
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:1rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.65rem 1rem}
+.stat .lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.stat .val{font-size:19px;font-weight:600;color:var(--text)}
+.stat .val.gain{color:var(--success)}
+.stat .val.loss{color:var(--danger)}
+
+.filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.pill{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:inherit}
+.pill:hover{background:var(--surface1)}
+.pill.active{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent)}
+.pill.sold-pill.active{background:var(--success-bg);border-color:var(--success-border);color:var(--success)}
+.spacer{flex:1}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+
+.card{background:var(--surface);border-radius:var(--radius-lg);border:1.5px solid var(--border);overflow:hidden;display:flex;flex-direction:column}
+.card:hover{border-color:var(--border2)}
+.card.sold-out{opacity:.75}
+
+.card-top{position:relative;height:130px;background:var(--surface1);display:flex;align-items:center;justify-content:center}
+.card-top img{width:100%;height:100%;object-fit:contain;padding:8px}
+.card-top i{font-size:32px;color:var(--text3)}
+.status-badge{position:absolute;top:7px;right:7px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;display:flex;align-items:center;gap:3px}
+.status-badge.sb-sold{background:var(--success-bg);color:var(--success);border:1px solid var(--success-border)}
+.status-badge.sb-partial{background:var(--partial-bg);color:var(--partial);border:1px solid var(--partial-border)}
+.lang-tag{position:absolute;bottom:6px;left:7px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+
+.card-body{padding:.75rem;flex:1}
+.card-name{font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+.info-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.info-key{font-size:11px;color:var(--text3)}
+.info-val{font-size:12px;font-weight:500;color:var(--text)}
+.info-val.gain{color:var(--success)}
+.info-val.loss{color:var(--danger)}
+
+.sparkline-wrap{margin-top:6px}
+.spark-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--text3);margin-bottom:2px}
+.sparkline{width:100%;height:32px;display:block}
+.no-history{height:32px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);margin-top:6px}
+
+.lots-log,.sales-log{margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+.lots-log-title,.sales-log-title{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px}
+.lots-log-row,.sales-log-row{display:flex;justify-content:space-between;font-size:10.5px;color:var(--text2);margin-bottom:2px}
+.lots-log-row.depleted{text-decoration:line-through;opacity:.5}
+
+.card-notes{font-size:11px;color:var(--text3);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-style:italic}
+
+.card-footer{padding:.5rem .75rem;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap}
+.card-footer button{flex:1;min-width:60px;font-size:11px;padding:5px 0;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:4px}
+.card-footer button:hover{background:var(--surface1)}
+.card-footer button.f-sell{border-color:var(--success-border);color:var(--success);background:var(--success-bg)}
+.card-footer button.f-del{border-color:var(--danger);color:var(--danger);flex:0 0 auto;min-width:30px}
+.card-footer button.f-del:hover{background:var(--danger-bg)}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
+.modal h3{font-size:16px;font-weight:600;margin-bottom:.25rem;color:var(--text)}
+.modal .sub{font-size:13px;color:var(--text2);margin-bottom:1rem}
+.form-grid{display:grid;gap:8px}
+.form-grid input,.form-grid select,.form-grid textarea{width:100%;padding:8px 10px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface1);color:var(--text);font-size:13px;font-family:inherit;outline:none}
+.form-grid input:focus,.form-grid select:focus{border-color:var(--accent)}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
+.form-group{display:grid;gap:3px}
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1rem}
+.modal-footer button{padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface1);color:var(--text);font-size:13px;cursor:pointer;font-family:inherit}
+.modal-footer .confirm{background:var(--accent-bg);border-color:var(--accent-border);color:var(--accent);font-weight:500}
+.modal-footer .confirm:hover{opacity:.9}
+
+.lot-rows{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;padding:2px}
+.lot-row{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:6px;align-items:center;background:var(--surface1);border-radius:var(--radius);padding:6px}
+.lot-row input{padding:6px 8px;font-size:12px}
+.lot-row button{width:26px;height:26px;border:none;background:transparent;color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:6px;flex-shrink:0}
+.lot-row button:hover{background:var(--danger-bg)}
+.lot-row button:disabled{opacity:.3;cursor:not-allowed}
+.lot-row-sold{grid-column:1/4;font-size:10px;color:var(--text3)}
+.add-lot-btn{font-size:12px;padding:6px 10px;border-radius:var(--radius);border:1px dashed var(--border2);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.add-lot-btn:hover{background:var(--surface1)}
+
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty i{font-size:40px;display:block;margin-bottom:10px}
+.empty p{font-size:14px;margin-bottom:1rem}
+
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;padding:8px 18px;border-radius:20px;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+
+.fab-add{position:fixed;right:1.5rem;bottom:1.5rem;width:56px;height:56px;border-radius:50%;border:none;background:var(--accent);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:150;transition:transform .15s,box-shadow .15s}
+.fab-add:hover{transform:scale(1.06);box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.fab-add:active{transform:scale(.96)}
+.fab-add i{font-size:24px;line-height:1}
+
+.help-note{font-size:12px;color:var(--text3);margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+.help-note i{font-size:14px}
+
+@media(max-width:480px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .topbar{gap:8px}
+  .topbar .logo{flex:0 0 100%;font-size:15px}
+  .topbar .search-row{flex:0 0 100%}
+  .topbar .btn-label{display:none}
+  .topbar .btn{padding:0 10px;min-width:36px;justify-content:center}
+  .fab-add{right:1rem;bottom:1rem;width:52px;height:52px}
+  .lot-row{grid-template-columns:1fr 1fr;grid-template-areas:"qty price" "date del"}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="logo"><i class="ti ti-package"></i> Sealed Product Tracker</div>
+    <div class="search-row">
+      <input type="text" id="searchInput" placeholder="Name, language or notes..." oninput="render()">
+      <select id="langFilter" onchange="render()">
+        <option value="">All languages</option>
+      </select>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn" onclick="exportCSV()" title="Export to CSV"><i class="ti ti-download"></i><span class="btn-label"> Export</span></button>
+      <button class="btn primary" onclick="triggerImport()" title="Upload CSV"><i class="ti ti-upload"></i><span class="btn-label"> Upload CSV</span></button>
+      <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="importCSV(event)">
+    </div>
+  </div>
+
+  <div class="help-note"><i class="ti ti-info-circle"></i> Upload your CSV to load it, add products or log new monthly prices and sales in the app, then Export to save the updated CSV back to your files.</div>
+
+  <div class="stats-row" id="statsRow"></div>
+
+  <div class="filter-bar">
+    <button class="pill active" data-f="all" onclick="setFilter(this,'all')">All</button>
+    <button class="pill" data-f="held" onclick="setFilter(this,'held')">Held</button>
+    <button class="pill sold-pill" data-f="sold" onclick="setFilter(this,'sold')">Sold out</button>
+  </div>
+
+  <div class="grid" id="cardGrid"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<button class="fab-add" onclick="openAdd()" title="Add product" aria-label="Add product">
+  <i class="ti ti-plus"></i>
+</button>
+
+<!-- Add product modal -->
+<div class="overlay" id="addOverlay" style="display:none">
+  <div class="modal">
+    <h3>Add product</h3>
+    <p class="sub">Name and language uniquely identify a product. You can add more purchase lots later at a different price.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Product name *</div>
+        <input type="text" id="f_name" placeholder="e.g. Scarlet & Violet Booster Box">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Language</div>
+        <input type="text" id="f_lang" placeholder="e.g. English">
+      </div>
+      <div class="form-row2">
+        <div class="form-group">
+          <div class="form-label">Quantity</div>
+          <input type="number" id="f_qty" placeholder="e.g. 3" step="1" min="1" value="1">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Purchase price / unit</div>
+          <input type="number" id="f_purchase" placeholder="e.g. 143.99" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Purchase date</div>
+        <input type="date" id="f_lotdate">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Image URL</div>
+        <input type="url" id="f_img" placeholder="Paste image link (optional)">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Notes</div>
+        <input type="text" id="f_notes" placeholder="e.g. Bought at local game store">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('addOverlay')">Cancel</button>
+      <button class="confirm" onclick="saveNewProduct()">Save product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit product modal (identity + purchase lots) -->
+<div class="overlay" id="editOverlay" style="display:none">
+  <div class="modal">
+    <h3>Edit product</h3>
+    <p class="sub">Manage purchase lots below — each can have its own price, so buying more at a different price just means adding another lot.</p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Product name *</div>
+        <input type="text" id="e_name">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Language</div>
+        <input type="text" id="e_lang">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Image URL</div>
+        <input type="url" id="e_img" placeholder="Paste image link (optional)">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Notes</div>
+        <input type="text" id="e_notes">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Purchase lots</div>
+        <div class="lot-rows" id="lotRows"></div>
+        <button type="button" class="add-lot-btn" onclick="addLotRow()"><i class="ti ti-plus"></i> Add another lot</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('editOverlay')">Cancel</button>
+      <button class="confirm" onclick="saveEditedProduct()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Log price modal -->
+<div class="overlay" id="logOverlay" style="display:none">
+  <div class="modal">
+    <h3>Log a price</h3>
+    <p class="sub" id="logSub"></p>
+    <div class="form-grid">
+      <div class="form-group">
+        <div class="form-label">Month</div>
+        <input type="month" id="l_month">
+      </div>
+      <div class="form-group">
+        <div class="form-label">Current price / unit</div>
+        <input type="number" id="l_price" placeholder="e.g. 155.00" step="0.01" min="0">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('logOverlay')">Cancel</button>
+      <button class="confirm" onclick="saveLog()">Save price</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sell modal -->
+<div class="overlay" id="sellOverlay" style="display:none">
+  <div class="modal">
+    <h3>Sell units</h3>
+    <p class="sub" id="sellSub"></p>
+    <div class="form-grid">
+      <div class="form-row2">
+        <div class="form-group">
+          <div class="form-label">Quantity to sell</div>
+          <input type="number" id="s_qty" step="1" min="1" value="1">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Sale price / unit</div>
+          <input type="number" id="s_price" placeholder="e.g. 210.00" step="0.01" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label">Sale date</div>
+        <input type="date" id="s_date">
+      </div>
+    </div>
+    <p class="sub" style="margin-bottom:0;font-size:11px">Cost basis is calculated FIFO — your oldest unsold purchase lot is sold first.</p>
+    <div class="modal-footer">
+      <button onclick="closeOverlay('sellOverlay')">Cancel</button>
+      <button class="confirm" onclick="saveSale()">Confirm sale</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'sealed_tracker_v3';
+const V2_KEY = 'sealed_tracker_v2';
+const V1_KEY = 'sealed_tracker_v1';
+
+function generateUid() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+}
+
+let products = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+if (!products) {
+  const v2 = JSON.parse(localStorage.getItem(V2_KEY) || 'null');
+  if (v2) {
+    // v2 had a single quantity + purchasePrice per product — becomes one lot.
+    products = v2.map(p => ({
+      uid: p.uid || generateUid(),
+      name: p.name, language: p.language,
+      imageUrl: p.imageUrl || '',
+      notes: p.notes,
+      lots: [{ qty: p.quantity || 1, purchasePrice: p.purchasePrice, date: '' }],
+      history: p.history || [],
+      sales: p.sales || []
+    }));
+  } else {
+    const v1 = JSON.parse(localStorage.getItem(V1_KEY) || 'null') || [];
+    products = v1.map(p => ({
+      uid: p.uid || generateUid(),
+      name: p.name, language: p.language,
+      imageUrl: '',
+      notes: p.notes,
+      lots: [{ qty: 1, purchasePrice: p.purchasePrice, date: '' }],
+      history: p.history || [],
+      sales: p.status === 'sold' ? [{ qty: 1, price: p.salePrice, date: p.saleDate || '' }] : []
+    }));
+  }
+}
+
+let currentFilter = 'all';
+let editUid = null;
+let logUid = null;
+let sellUid = null;
+let editLots = []; // temp working copy of lots while the edit modal is open
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(products)); }
+function today() { return new Date().toISOString().slice(0,10); }
+function thisMonth() { return new Date().toISOString().slice(0,7); }
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+function closeOverlay(id) { document.getElementById(id).style.display = 'none'; }
+
+// ── Filter ─────────────────────────────────────────────────────────────
+function setFilter(el, f) {
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = f;
+  render();
+}
+
+function refreshLangFilterOptions() {
+  const sel = document.getElementById('langFilter');
+  const cur = sel.value;
+  const langs = [...new Set(products.map(p => p.language).filter(Boolean))].sort();
+  sel.innerHTML = '<option value="">All languages</option>' + langs.map(l => `<option value="${l}">${l}</option>`).join('');
+  if (langs.includes(cur)) sel.value = cur;
+}
+
+// ── FIFO cost-basis engine ───────────────────────────────────────────────
+// Purchase lots are consumed oldest-first (by purchase date, falling back to
+// entry order) as sales are recorded in chronological order. This is derived
+// fresh from lots+sales every render rather than stored, so editing/removing
+// a lot or sale always recalculates correct cost basis.
+function allocate(p) {
+  const lots = (p.lots || [])
+    .map((l, i) => ({ ...l, idx: i, remaining: l.qty || 0 }))
+    .sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.idx - b.idx);
+  const sales = (p.sales || [])
+    .map((s, i) => ({ ...s, idx: i }))
+    .sort((a, b) => (a.date || '').localeCompare(b.date || '') || a.idx - b.idx);
+
+  const saleResults = [];
+  for (const s of sales) {
+    let toConsume = s.qty || 0;
+    let costBasis = 0;
+    for (const lot of lots) {
+      if (toConsume <= 0) break;
+      if (lot.remaining <= 0) continue;
+      const take = Math.min(lot.remaining, toConsume);
+      costBasis += take * (lot.purchasePrice || 0);
+      lot.remaining -= take;
+      toConsume -= take;
+    }
+    const gain = (s.qty || 0) * (s.price || 0) - costBasis;
+    saleResults.push({ ...s, costBasis, gain });
+  }
+
+  const totalQty = lots.reduce((sum, l) => sum + (l.qty || 0), 0);
+  const remainingQty = Math.max(0, lots.reduce((sum, l) => sum + l.remaining, 0));
+  const remainingCostBasis = lots.reduce((sum, l) => sum + l.remaining * (l.purchasePrice || 0), 0);
+  const avgRemainingCost = remainingQty > 0 ? remainingCostBasis / remainingQty : null;
+  const totalRealizedGain = saleResults.reduce((s, r) => s + r.gain, 0);
+  const soldQty = totalQty - remainingQty;
+
+  return { lots, saleResults, totalQty, remainingQty, remainingCostBasis, avgRemainingCost, totalRealizedGain, soldQty };
+}
+
+function latestPrice(p) {
+  if (!p.history || !p.history.length) return null;
+  return p.history[p.history.length - 1].price;
+}
+function statusOf(alloc) {
+  if (alloc.remainingQty <= 0) return 'sold';
+  if (alloc.soldQty > 0) return 'partial';
+  return 'held';
+}
+function unrealizedGain(p, alloc) {
+  if (alloc.remainingQty <= 0) return null;
+  const lv = latestPrice(p);
+  if (lv == null) return null;
+  return alloc.remainingQty * lv - alloc.remainingCostBasis;
+}
+
+// ── Sparkline ──────────────────────────────────────────────────────────
+function sparklineSVG(history) {
+  if (!history || history.length < 2) {
+    return '<div class="no-history">Not enough price history yet</div>';
+  }
+  const vals = history.map(h => h.price);
+  const min = Math.min(...vals), max = Math.max(...vals), range = max - min || 1;
+  const W = 200, H = 32, pad = 4;
+  const pts = vals.map((v, i) => {
+    const x = pad + (i / (vals.length - 1)) * (W - 2 * pad);
+    const y = H - pad - ((v - min) / range) * (H - 2 * pad);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const last = vals[vals.length - 1], first = vals[0];
+  const col = last >= first ? '#059669' : '#dc2626';
+  const lastPt = pts.split(' ').pop().split(',');
+  return `
+    <div class="sparkline-wrap">
+      <div class="spark-labels"><span>${history[0].month}</span><span>${history[history.length-1].month}</span></div>
+      <svg class="sparkline" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="${lastPt[0]}" cy="${lastPt[1]}" r="3" fill="${col}"/>
+      </svg>
+    </div>`;
+}
+
+// ── Stats bar ──────────────────────────────────────────────────────────
+function renderStats() {
+  let heldUnits = 0, soldUnits = 0, invested = 0, currentValue = 0, unrealized = 0, realized = 0;
+  products.forEach(p => {
+    const alloc = allocate(p);
+    heldUnits += alloc.remainingQty;
+    soldUnits += alloc.soldQty;
+    if (alloc.remainingQty > 0) {
+      invested += alloc.remainingCostBasis;
+      const lv = latestPrice(p);
+      currentValue += alloc.remainingQty * (lv != null ? lv : (alloc.avgRemainingCost || 0));
+      const ug = unrealizedGain(p, alloc);
+      if (ug != null) unrealized += ug;
+    }
+    realized += alloc.totalRealizedGain;
+  });
+
+  const glClass = (v) => v >= 0 ? 'gain' : 'loss';
+  const glStr = (v) => (v >= 0 ? '+' : '-') + '$' + Math.abs(v).toFixed(2);
+
+  document.getElementById('statsRow').innerHTML = `
+    <div class="stat"><div class="lbl">Units held</div><div class="val">${heldUnits}</div></div>
+    <div class="stat"><div class="lbl">Units sold</div><div class="val">${soldUnits}</div></div>
+    <div class="stat"><div class="lbl">Invested (held)</div><div class="val">$${invested.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Current value</div><div class="val">$${currentValue.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Unrealized</div><div class="val ${glClass(unrealized)}">${glStr(unrealized)}</div></div>
+    <div class="stat"><div class="lbl">Realized</div><div class="val ${glClass(realized)}">${glStr(realized)}</div></div>
+  `;
+}
+
+// ── Card grid ──────────────────────────────────────────────────────────
+function render() {
+  renderStats();
+  refreshLangFilterOptions();
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const lang = document.getElementById('langFilter').value;
+
+  let filtered = products.filter(p => {
+    const status = statusOf(allocate(p));
+    if (currentFilter === 'held' && status === 'sold') return false;
+    if (currentFilter === 'sold' && status !== 'sold') return false;
+    if (lang && p.language !== lang) return false;
+    if (q) {
+      const haystack = [p.name, p.language, p.notes].join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    const sa = statusOf(allocate(a)), sb = statusOf(allocate(b));
+    if (sa !== sb) return sa === 'sold' ? 1 : -1;
+    return a.name.localeCompare(b.name);
+  });
+
+  if (!filtered.length) {
+    document.getElementById('cardGrid').innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <i class="ti ti-package-off"></i>
+        <p>${products.length ? 'No products match your search.' : 'No products yet — upload a CSV or add your first product.'}</p>
+        ${products.length ? '' : '<button class="btn primary" onclick="openAdd()"><i class="ti ti-plus"></i> Add product</button>'}
+      </div>`;
+    return;
+  }
+
+  document.getElementById('cardGrid').innerHTML = filtered.map(p => {
+    const alloc = allocate(p);
+    const status = statusOf(alloc);
+    const isSoldOut = status === 'sold';
+    const lv = latestPrice(p);
+    const ug = unrealizedGain(p, alloc);
+    const rg = alloc.totalRealizedGain;
+    const glClass = (v) => v == null ? '' : (v >= 0 ? 'gain' : 'loss');
+    const glStr = (v) => v == null ? '—' : (v >= 0 ? '+' : '-') + '$' + Math.abs(v).toFixed(2);
+
+    const lotsRows = alloc.lots.map(l =>
+      `<div class="lots-log-row ${l.remaining <= 0 ? 'depleted' : ''}"><span>${l.remaining} of ${l.qty} @ $${(l.purchasePrice || 0).toFixed(2)}</span><span>${l.date || 'no date'}</span></div>`
+    ).join('');
+
+    const salesRows = alloc.saleResults.map(s =>
+      `<div class="sales-log-row"><span>${s.qty} @ $${(s.price || 0).toFixed(2)}</span><span>${s.date || '—'} (${s.gain >= 0 ? '+' : '-'}$${Math.abs(s.gain).toFixed(2)})</span></div>`
+    ).join('');
+
+    return `
+    <div class="card ${isSoldOut ? 'sold-out' : ''}">
+      <div class="card-top">
+        ${p.imageUrl
+          ? `<img src="${p.imageUrl}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><i class="ti ti-package" style="display:none"></i>`
+          : `<i class="ti ti-package"></i>`}
+        ${isSoldOut ? `<div class="status-badge sb-sold"><i class="ti ti-check" style="font-size:9px"></i> Sold out</div>` : ''}
+        ${status === 'partial' ? `<div class="status-badge sb-partial"><i class="ti ti-minus" style="font-size:9px"></i> ${alloc.soldQty} sold</div>` : ''}
+        ${p.language ? `<span class="lang-tag">${p.language}</span>` : ''}
+      </div>
+
+      <div class="card-body">
+        <div class="card-name">${p.name}</div>
+
+        <div class="info-row">
+          <span class="info-key">Quantity</span>
+          <span class="info-val">${alloc.remainingQty} held${alloc.soldQty ? ' / ' + alloc.totalQty + ' total' : ''}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Avg. cost (held)</span>
+          <span class="info-val">${alloc.avgRemainingCost != null ? '$' + alloc.avgRemainingCost.toFixed(2) + ' / unit' : '—'}</span>
+        </div>
+
+        ${alloc.remainingQty > 0 ? `
+          <div class="info-row">
+            <span class="info-key">Latest price</span>
+            <span class="info-val">${lv != null ? '$' + lv.toFixed(2) + ' / unit' : '—'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-key">Unrealized gain/loss</span>
+            <span class="info-val ${glClass(ug)}">${glStr(ug)}</span>
+          </div>
+          ${sparklineSVG(p.history)}
+        ` : ''}
+
+        ${alloc.lots.length > 1 ? `
+          <div class="lots-log">
+            <div class="lots-log-title">Purchase lots</div>
+            ${lotsRows}
+          </div>
+        ` : ''}
+
+        ${alloc.saleResults.length ? `
+          <div class="info-row" style="margin-top:6px">
+            <span class="info-key">Realized gain/loss</span>
+            <span class="info-val ${glClass(rg)}">${glStr(rg)}</span>
+          </div>
+          <div class="sales-log">${salesRows}</div>
+        ` : ''}
+
+        ${p.notes ? `<div class="card-notes">${p.notes}</div>` : ''}
+      </div>
+
+      <div class="card-footer">
+        ${alloc.remainingQty > 0 ? `<button onclick="openLog('${p.uid}')"><i class="ti ti-chart-line"></i> Log price</button>` : ''}
+        ${alloc.remainingQty > 0 ? `<button class="f-sell" onclick="openSell('${p.uid}')"><i class="ti ti-cash"></i> Sell</button>` : ''}
+        <button onclick="openEdit('${p.uid}')"><i class="ti ti-edit"></i></button>
+        <button class="f-del" onclick="deleteProduct('${p.uid}')"><i class="ti ti-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Add product ──────────────────────────────────────────────────────────
+function openAdd() {
+  document.getElementById('f_name').value = '';
+  document.getElementById('f_lang').value = '';
+  document.getElementById('f_qty').value = 1;
+  document.getElementById('f_purchase').value = '';
+  document.getElementById('f_lotdate').value = today();
+  document.getElementById('f_img').value = '';
+  document.getElementById('f_notes').value = '';
+  document.getElementById('addOverlay').style.display = 'flex';
+}
+
+function saveNewProduct() {
+  const name = document.getElementById('f_name').value.trim();
+  if (!name) { toast('Product name is required'); return; }
+  const language = document.getElementById('f_lang').value.trim();
+  const quantity = parseInt(document.getElementById('f_qty').value, 10);
+  const purchasePrice = parseFloat(document.getElementById('f_purchase').value);
+  const lotDate = document.getElementById('f_lotdate').value;
+  const imageUrl = document.getElementById('f_img').value.trim();
+  const notes = document.getElementById('f_notes').value.trim();
+
+  const dupe = products.find(x => x.name.toLowerCase() === name.toLowerCase() && (x.language || '').toLowerCase() === language.toLowerCase());
+  if (dupe) { toast('A product with this name and language already exists — edit it to add another lot'); return; }
+
+  products.push({
+    uid: generateUid(),
+    name, language,
+    imageUrl,
+    notes,
+    lots: [{
+      qty: isNaN(quantity) || quantity < 1 ? 1 : quantity,
+      purchasePrice: isNaN(purchasePrice) ? 0 : purchasePrice,
+      date: lotDate || ''
+    }],
+    history: [],
+    sales: []
+  });
+  save();
+  closeOverlay('addOverlay');
+  render();
+  toast('Product saved');
+}
+
+// ── Edit product + lot management ───────────────────────────────────────
+function openEdit(uid) {
+  const p = products.find(x => x.uid === uid);
+  if (!p) return;
+  editUid = uid;
+  document.getElementById('e_name').value = p.name || '';
+  document.getElementById('e_lang').value = p.language || '';
+  document.getElementById('e_img').value = p.imageUrl || '';
+  document.getElementById('e_notes').value = p.notes || '';
+  editLots = (p.lots || []).map(l => ({ ...l }));
+  renderLotRows();
+  document.getElementById('editOverlay').style.display = 'flex';
+}
+
+function renderLotRows() {
+  const p = products.find(x => x.uid === editUid);
+  const alloc = allocate(p);
+  document.getElementById('lotRows').innerHTML = editLots.map((l, i) => {
+    const sold = alloc.lots[i] ? (alloc.lots[i].qty - alloc.lots[i].remaining) : 0;
+    return `
+    <div class="lot-row">
+      <input type="number" step="1" min="${sold}" value="${l.qty}" placeholder="Qty" oninput="updateLotField(${i},'qty',this.value)">
+      <input type="number" step="0.01" min="0" value="${l.purchasePrice != null ? l.purchasePrice : ''}" placeholder="Price" oninput="updateLotField(${i},'purchasePrice',this.value)">
+      <input type="date" value="${l.date || ''}" oninput="updateLotField(${i},'date',this.value)">
+      <button type="button" onclick="removeLotRow(${i})" ${editLots.length <= 1 ? 'disabled title=\"A product needs at least one lot\"' : ''}><i class="ti ti-trash" style="font-size:14px"></i></button>
+      ${sold > 0 ? `<div class="lot-row-sold">${sold} of ${l.qty} already sold from this lot</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function updateLotField(i, field, value) {
+  if (field === 'qty') editLots[i].qty = parseInt(value, 10);
+  else if (field === 'purchasePrice') editLots[i].purchasePrice = parseFloat(value);
+  else editLots[i].date = value;
+}
+
+function addLotRow() {
+  editLots.push({ qty: 1, purchasePrice: '', date: today() });
+  renderLotRows();
+}
+
+function removeLotRow(i) {
+  if (editLots.length <= 1) return;
+  editLots.splice(i, 1);
+  renderLotRows();
+}
+
+function saveEditedProduct() {
+  const p = products.find(x => x.uid === editUid);
+  if (!p) return;
+  const name = document.getElementById('e_name').value.trim();
+  if (!name) { toast('Product name is required'); return; }
+  const language = document.getElementById('e_lang').value.trim();
+
+  for (const l of editLots) {
+    if (isNaN(l.qty) || l.qty < 1) { toast('Every lot needs a quantity of at least 1'); return; }
+    if (isNaN(l.purchasePrice)) { toast('Every lot needs a purchase price'); return; }
+  }
+  const newTotalQty = editLots.reduce((s, l) => s + l.qty, 0);
+  const alreadySold = allocate(p).soldQty;
+  if (newTotalQty < alreadySold) {
+    toast(`Total quantity can't be less than the ${alreadySold} unit${alreadySold === 1 ? '' : 's'} already sold`);
+    return;
+  }
+
+  const dupe = products.find(x => x.uid !== editUid && x.name.toLowerCase() === name.toLowerCase() && (x.language || '').toLowerCase() === language.toLowerCase());
+  if (dupe) { toast('Another product with this name and language already exists'); return; }
+
+  p.name = name;
+  p.language = language;
+  p.imageUrl = document.getElementById('e_img').value.trim();
+  p.notes = document.getElementById('e_notes').value.trim();
+  p.lots = editLots.map(l => ({ qty: l.qty, purchasePrice: l.purchasePrice, date: l.date || '' }));
+
+  save();
+  closeOverlay('editOverlay');
+  render();
+  toast('Product saved');
+}
+
+function deleteProduct(uid) {
+  if (!confirm('Delete this product, its price history and sale records?')) return;
+  products = products.filter(p => p.uid !== uid);
+  save();
+  render();
+  toast('Product deleted');
+}
+
+// ── Log price ────────────────────────────────────────────────────────────
+function openLog(uid) {
+  const p = products.find(x => x.uid === uid);
+  if (!p) return;
+  logUid = uid;
+  document.getElementById('logSub').textContent = p.name + (p.language ? ' · ' + p.language : '');
+  document.getElementById('l_month').value = thisMonth();
+  document.getElementById('l_price').value = '';
+  document.getElementById('logOverlay').style.display = 'flex';
+}
+
+function saveLog() {
+  const p = products.find(x => x.uid === logUid);
+  if (!p) return;
+  const month = document.getElementById('l_month').value;
+  const price = parseFloat(document.getElementById('l_price').value);
+  if (!month || isNaN(price)) { toast('Enter a month and price'); return; }
+  if (!p.history) p.history = [];
+  const existing = p.history.find(h => h.month === month);
+  if (existing) existing.price = price;
+  else p.history.push({ month, price });
+  p.history.sort((a, b) => a.month.localeCompare(b.month));
+  save();
+  closeOverlay('logOverlay');
+  render();
+  toast('Price logged');
+}
+
+// ── Sell ─────────────────────────────────────────────────────────────────
+function openSell(uid) {
+  const p = products.find(x => x.uid === uid);
+  if (!p) return;
+  sellUid = uid;
+  const rem = allocate(p).remainingQty;
+  document.getElementById('sellSub').textContent = `${p.name}${p.language ? ' · ' + p.language : ''} — ${rem} unit${rem === 1 ? '' : 's'} available`;
+  document.getElementById('s_qty').value = 1;
+  document.getElementById('s_qty').max = rem;
+  document.getElementById('s_price').value = '';
+  document.getElementById('s_date').value = today();
+  document.getElementById('sellOverlay').style.display = 'flex';
+}
+
+function saveSale() {
+  const p = products.find(x => x.uid === sellUid);
+  if (!p) return;
+  const qty = parseInt(document.getElementById('s_qty').value, 10);
+  const price = parseFloat(document.getElementById('s_price').value);
+  const date = document.getElementById('s_date').value;
+  const rem = allocate(p).remainingQty;
+  if (isNaN(qty) || qty < 1) { toast('Enter a valid quantity'); return; }
+  if (qty > rem) { toast(`Only ${rem} unit${rem === 1 ? '' : 's'} available to sell`); return; }
+  if (isNaN(price)) { toast('Enter a sale price'); return; }
+  if (!p.sales) p.sales = [];
+  p.sales.push({ qty, price, date });
+  save();
+  closeOverlay('sellOverlay');
+  render();
+  toast('Sale recorded');
+}
+
+// ── CSV Export ─────────────────────────────────────────────────────────
+function csvField(v) { return `"${String(v == null ? '' : v).replace(/"/g, '""')}"`; }
+
+function exportCSV() {
+  if (!products.length) { toast('No products to export'); return; }
+  const headers = ['Product Name','Language','Image URL','Notes','Lot Qty','Lot Purchase Price','Lot Date','Month','Current Price','Sale Qty','Sale Price','Sale Date'];
+  const rows = [];
+  products.forEach(p => {
+    const base = [p.name, p.language, p.imageUrl || '', p.notes || ''];
+    const lotRows = (p.lots || []).map(l => [...base, l.qty, (l.purchasePrice || 0).toFixed(2), l.date || '', '', '', '', '', ''].map(csvField).join(','));
+    const historyRows = (p.history || []).map(h => [...base, '', '', '', h.month, h.price.toFixed(2), '', '', ''].map(csvField).join(','));
+    const saleRows = (p.sales || []).map(s => [...base, '', '', '', '', '', s.qty, (s.price || 0).toFixed(2), s.date || ''].map(csvField).join(','));
+    rows.push(...lotRows, ...historyRows, ...saleRows);
+  });
+  const csv = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sealed-product-tracker-${today()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('CSV exported!');
+}
+
+// ── CSV Import ─────────────────────────────────────────────────────────
+function triggerImport() {
+  document.getElementById('csvFileInput').value = '';
+  document.getElementById('csvFileInput').click();
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQ && line[i+1] === '"') { cur += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      result.push(cur.trim()); cur = '';
+    } else cur += ch;
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const text = e.target.result;
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { toast('CSV is empty or has no data rows'); return; }
+
+    const headers = parseCSVLine(lines[0]).map(h => h.toLowerCase());
+    const col = (names) => {
+      for (const n of names) {
+        const idx = headers.findIndex(h => h.includes(n));
+        if (idx !== -1) return idx;
+      }
+      return -1;
+    };
+    const iName    = col(['product name', 'name']);
+    const iLang    = col(['language']);
+    const iImg     = col(['image url', 'image', 'img']);
+    const iNotes   = col(['notes']);
+    const iLotQty  = col(['lot qty', 'lot quantity']);
+    const iLotPr   = col(['lot purchase price', 'lot price']);
+    const iLotDt   = col(['lot date']);
+    const iMonth   = col(['month']);
+    const iPrice   = col(['current price']);
+    const iSaleQty = col(['sale qty', 'sale quantity']);
+    const iSalePr  = col(['sale price']);
+    const iSaleDt  = col(['sale date']);
+
+    if (iName === -1) { toast('CSV must have a "Product Name" column'); return; }
+
+    const byKey = new Map();
+    for (let i = 1; i < lines.length; i++) {
+      const f = parseCSVLine(lines[i]);
+      const name = f[iName];
+      if (!name) continue;
+      const language = iLang !== -1 ? f[iLang] : '';
+      const key = name.toLowerCase() + '|||' + (language || '').toLowerCase();
+
+      let p = byKey.get(key);
+      if (!p) {
+        p = {
+          uid: generateUid(),
+          name, language,
+          imageUrl: iImg !== -1 ? f[iImg] : '',
+          notes: iNotes !== -1 ? f[iNotes] : '',
+          lots: [],
+          history: [],
+          sales: []
+        };
+        byKey.set(key, p);
+      }
+
+      const lotQtyStr = iLotQty !== -1 ? f[iLotQty] : '';
+      const lotPriceStr = iLotPr !== -1 ? f[iLotPr] : '';
+      if (lotQtyStr && lotPriceStr) {
+        const qty = parseInt(lotQtyStr, 10);
+        const price = parseFloat(lotPriceStr);
+        if (!isNaN(qty) && !isNaN(price)) {
+          p.lots.push({ qty, purchasePrice: price, date: iLotDt !== -1 ? f[iLotDt] : '' });
+        }
+      }
+
+      const month = iMonth !== -1 ? f[iMonth] : '';
+      const priceStr = iPrice !== -1 ? f[iPrice] : '';
+      if (month && priceStr) {
+        const price = parseFloat(priceStr);
+        if (!isNaN(price)) {
+          const existing = p.history.find(h => h.month === month);
+          if (existing) existing.price = price;
+          else p.history.push({ month, price });
+        }
+      }
+
+      const saleQtyStr = iSaleQty !== -1 ? f[iSaleQty] : '';
+      const salePriceStr = iSalePr !== -1 ? f[iSalePr] : '';
+      if (saleQtyStr && salePriceStr) {
+        const qty = parseInt(saleQtyStr, 10);
+        const price = parseFloat(salePriceStr);
+        if (!isNaN(qty) && !isNaN(price)) {
+          p.sales.push({ qty, price, date: iSaleDt !== -1 ? f[iSaleDt] : '' });
+        }
+      }
+    }
+
+    byKey.forEach(p => {
+      p.history.sort((a, b) => a.month.localeCompare(b.month));
+      if (!p.lots.length) p.lots.push({ qty: 1, purchasePrice: 0, date: '' });
+    });
+    products = [...byKey.values()];
+    save();
+    render();
+    toast(`Imported ${products.length} product${products.length === 1 ? '' : 's'}`);
+  };
+  reader.readAsText(file);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
